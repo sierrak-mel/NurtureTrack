@@ -14,16 +14,260 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      baby_profiles: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          default_start_side: Database["public"]["Enums"]["feeding_side"]
+          family_id: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          default_start_side?: Database["public"]["Enums"]["feeding_side"]
+          family_id: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          default_start_side?: Database["public"]["Enums"]["feeding_side"]
+          family_id?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "baby_profiles_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      caregivers: {
+        Row: {
+          created_at: string
+          display_name: string
+          family_id: string
+          id: string
+          invite_email: string | null
+          role: Database["public"]["Enums"]["caregiver_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          family_id: string
+          id?: string
+          invite_email?: string | null
+          role?: Database["public"]["Enums"]["caregiver_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          family_id?: string
+          id?: string
+          invite_email?: string | null
+          role?: Database["public"]["Enums"]["caregiver_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caregivers_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diaper_changes: {
+        Row: {
+          baby_profile_id: string
+          caregiver_id: string | null
+          color_note: Database["public"]["Enums"]["color_note"] | null
+          created_at: string
+          id: string
+          notes: string | null
+          timestamp: string
+          type: Database["public"]["Enums"]["diaper_type"]
+        }
+        Insert: {
+          baby_profile_id: string
+          caregiver_id?: string | null
+          color_note?: Database["public"]["Enums"]["color_note"] | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          timestamp?: string
+          type: Database["public"]["Enums"]["diaper_type"]
+        }
+        Update: {
+          baby_profile_id?: string
+          caregiver_id?: string | null
+          color_note?: Database["public"]["Enums"]["color_note"] | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          timestamp?: string
+          type?: Database["public"]["Enums"]["diaper_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diaper_changes_baby_profile_id_fkey"
+            columns: ["baby_profile_id"]
+            isOneToOne: false
+            referencedRelation: "baby_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diaper_changes_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      families: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      feeding_sessions: {
+        Row: {
+          baby_profile_id: string
+          caregiver_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          end_time: string | null
+          id: string
+          notes: string | null
+          side: Database["public"]["Enums"]["feeding_side"]
+          start_time: string
+        }
+        Insert: {
+          baby_profile_id: string
+          caregiver_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          side: Database["public"]["Enums"]["feeding_side"]
+          start_time: string
+        }
+        Update: {
+          baby_profile_id?: string
+          caregiver_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          side?: Database["public"]["Enums"]["feeding_side"]
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feeding_sessions_baby_profile_id_fkey"
+            columns: ["baby_profile_id"]
+            isOneToOne: false
+            referencedRelation: "baby_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feeding_sessions_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sleep_sessions: {
+        Row: {
+          baby_profile_id: string
+          caregiver_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          end_time: string | null
+          id: string
+          notes: string | null
+          sleep_type: Database["public"]["Enums"]["sleep_type"]
+          start_time: string
+        }
+        Insert: {
+          baby_profile_id: string
+          caregiver_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          sleep_type?: Database["public"]["Enums"]["sleep_type"]
+          start_time: string
+        }
+        Update: {
+          baby_profile_id?: string
+          caregiver_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          sleep_type?: Database["public"]["Enums"]["sleep_type"]
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sleep_sessions_baby_profile_id_fkey"
+            columns: ["baby_profile_id"]
+            isOneToOne: false
+            referencedRelation: "baby_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sleep_sessions_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_family_ids: { Args: { _user_id: string }; Returns: string[] }
     }
     Enums: {
-      [_ in never]: never
+      caregiver_role: "owner" | "member"
+      color_note: "normal" | "unusual" | "bloody"
+      diaper_type: "pee" | "poop" | "both"
+      feeding_side: "left" | "right" | "both"
+      sleep_type: "nap" | "night"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +394,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      caregiver_role: ["owner", "member"],
+      color_note: ["normal", "unusual", "bloody"],
+      diaper_type: ["pee", "poop", "both"],
+      feeding_side: ["left", "right", "both"],
+      sleep_type: ["nap", "night"],
+    },
   },
 } as const
