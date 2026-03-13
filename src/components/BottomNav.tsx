@@ -9,9 +9,13 @@ const tabs = [
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
+const hiddenPaths = ['/auth', '/reset-password'];
+
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur-md safe-area-bottom">
