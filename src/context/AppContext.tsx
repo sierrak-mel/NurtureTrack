@@ -125,12 +125,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [setSleeps]);
 
+  const updateSleep = useCallback((id: string, updates: Partial<SleepSession>) => {
+    setSleeps(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  }, [setSleeps]);
+
   return (
     <AppContext.Provider value={{
       profile, setProfile,
-      feedings, activeFeeding, startFeeding, stopFeeding, deleteFeeding, addPastFeeding,
-      diapers, logDiaper, deleteDiaper, addPastDiaper,
-      sleeps, activeSleep, startSleep, stopSleep, deleteSleep, addPastSleep,
+      feedings, activeFeeding, startFeeding, stopFeeding, deleteFeeding, addPastFeeding, updateFeeding,
+      diapers, logDiaper, deleteDiaper, addPastDiaper, updateDiaper,
+      sleeps, activeSleep, startSleep, stopSleep, deleteSleep, addPastSleep, updateSleep,
     }}>
       {children}
     </AppContext.Provider>
