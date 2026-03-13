@@ -69,6 +69,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [setFeedings]);
 
+  const updateFeeding = useCallback((id: string, updates: Partial<FeedingSession>) => {
+    setFeedings(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
+  }, [setFeedings]);
+
   const logDiaper = useCallback((type: DiaperType, colorNote: ColorNote | null = null, notes = '') => {
     const entry: DiaperChange = { id: genId(), timestamp: new Date().toISOString(), type, colorNote, notes };
     setDiapers(prev => [entry, ...prev]);
@@ -83,6 +87,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const all = [{ ...d, id: genId() }, ...prev];
       return all.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     });
+  }, [setDiapers]);
+
+  const updateDiaper = useCallback((id: string, updates: Partial<DiaperChange>) => {
+    setDiapers(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
   }, [setDiapers]);
 
   const startSleep = useCallback(() => {
