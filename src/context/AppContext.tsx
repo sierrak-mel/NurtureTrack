@@ -13,16 +13,19 @@ interface AppState {
   stopFeeding: (notes?: string) => void;
   deleteFeeding: (id: string) => void;
   addPastFeeding: (f: Omit<FeedingSession, 'id'>) => void;
+  updateFeeding: (id: string, updates: Partial<FeedingSession>) => void;
   diapers: DiaperChange[];
   logDiaper: (type: DiaperType, colorNote?: ColorNote | null, notes?: string) => void;
   deleteDiaper: (id: string) => void;
   addPastDiaper: (d: Omit<DiaperChange, 'id'>) => void;
+  updateDiaper: (id: string, updates: Partial<DiaperChange>) => void;
   sleeps: SleepSession[];
   activeSleep: SleepSession | null;
   startSleep: () => void;
   stopSleep: (notes?: string, sleepType?: SleepType) => void;
   deleteSleep: (id: string) => void;
   addPastSleep: (s: Omit<SleepSession, 'id'>) => void;
+  updateSleep: (id: string, updates: Partial<SleepSession>) => void;
 }
 
 const AppContext = createContext<AppState | null>(null);
