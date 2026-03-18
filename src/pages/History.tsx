@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Baby, Droplets, Moon, Trash2, Pencil, Plus } from 'lucide-react';
+import { Baby, Droplets, Moon, Trash2, Pencil, Plus, Milk } from 'lucide-react';
 import { format } from 'date-fns';
-import type { Side, DiaperType, ColorNote, SleepType, FeedingSession, DiaperChange, SleepSession } from '@/types';
+import type { Side, DiaperType, ColorNote, SleepType, ContentType, FeedingSession, DiaperChange, SleepSession, PumpingSession, BottleFeed } from '@/types';
 
 function formatDate(d: string) {
   return new Date(d).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -21,8 +21,7 @@ function formatDuration(s: number) {
 }
 
 function toLocalDatetime(iso: string) {
-  const d = new Date(iso);
-  return format(d, "yyyy-MM-dd'T'HH:mm");
+  return format(new Date(iso), "yyyy-MM-dd'T'HH:mm");
 }
 
 function fromLocalDatetime(local: string) {
@@ -31,16 +30,15 @@ function fromLocalDatetime(local: string) {
 
 const sideLabel: Record<Side, string> = { left: '🤱 Left', right: 'Right 🤱', both: 'Both' };
 const diaperEmoji: Record<DiaperType, string> = { pee: '💧', poop: '💩', both: '💧💩' };
+const contentLabel: Record<ContentType, string> = { breast_milk: '🤱 Breast Milk', formula: '🍼 Formula', mixed: '🥛 Mixed' };
 
-/* ── Edit Feeding Dialog ──────────────────────────────────────── */
-
+/* ── Edit Feeding Dialog ── */
 function EditFeedingDialog({ entry, open, onClose }: { entry: FeedingSession; open: boolean; onClose: () => void }) {
   const { updateFeeding } = useApp();
   const [startTime, setStartTime] = useState(toLocalDatetime(entry.startTime));
   const [endTime, setEndTime] = useState(entry.endTime ? toLocalDatetime(entry.endTime) : '');
   const [side, setSide] = useState<Side>(entry.side);
   const [notes, setNotes] = useState(entry.notes);
-
   const save = () => {
     const st = fromLocalDatetime(startTime);
     const et = endTime ? fromLocalDatetime(endTime) : null;
@@ -48,7 +46,6 @@ function EditFeedingDialog({ entry, open, onClose }: { entry: FeedingSession; op
     updateFeeding(entry.id, { startTime: st, endTime: et, durationSeconds: dur, side, notes });
     onClose();
   };
-
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-sm rounded-2xl">
@@ -61,25 +58,18 @@ function EditFeedingDialog({ entry, open, onClose }: { entry: FeedingSession; op
           <label className="text-sm font-nunito text-muted-foreground">Side</label>
           <Select value={side} onValueChange={v => setSide(v as Side)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="left">Left</SelectItem>
-              <SelectItem value="right">Right</SelectItem>
-              <SelectItem value="both">Both</SelectItem>
-            </SelectContent>
+            <SelectContent><SelectItem value="left">Left</SelectItem><SelectItem value="right">Right</SelectItem><SelectItem value="both">Both</SelectItem></SelectContent>
           </Select>
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Save</Button>
-        </DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Save</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-/* ── Add Past Feeding Dialog ──────────────────────────────────── */
-
+/* ── Add Past Feeding Dialog ── */
 function AddFeedingDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addPastFeeding } = useApp();
   const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
@@ -87,15 +77,11 @@ function AddFeedingDialog({ open, onClose }: { open: boolean; onClose: () => voi
   const [endTime, setEndTime] = useState(now);
   const [side, setSide] = useState<Side>('left');
   const [notes, setNotes] = useState('');
-
   const save = () => {
-    const st = fromLocalDatetime(startTime);
-    const et = fromLocalDatetime(endTime);
+    const st = fromLocalDatetime(startTime); const et = fromLocalDatetime(endTime);
     const dur = Math.max(0, Math.floor((new Date(et).getTime() - new Date(st).getTime()) / 1000));
-    addPastFeeding({ startTime: st, endTime: et, durationSeconds: dur, side, notes });
-    onClose();
+    addPastFeeding({ startTime: st, endTime: et, durationSeconds: dur, side, notes }); onClose();
   };
-
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-sm rounded-2xl">
@@ -108,37 +94,25 @@ function AddFeedingDialog({ open, onClose }: { open: boolean; onClose: () => voi
           <label className="text-sm font-nunito text-muted-foreground">Side</label>
           <Select value={side} onValueChange={v => setSide(v as Side)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="left">Left</SelectItem>
-              <SelectItem value="right">Right</SelectItem>
-              <SelectItem value="both">Both</SelectItem>
-            </SelectContent>
+            <SelectContent><SelectItem value="left">Left</SelectItem><SelectItem value="right">Right</SelectItem><SelectItem value="both">Both</SelectItem></SelectContent>
           </Select>
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Add Entry</Button>
-        </DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Add Entry</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-/* ── Edit Diaper Dialog ───────────────────────────────────────── */
-
+/* ── Edit Diaper Dialog ── */
 function EditDiaperDialog({ entry, open, onClose }: { entry: DiaperChange; open: boolean; onClose: () => void }) {
   const { updateDiaper } = useApp();
   const [timestamp, setTimestamp] = useState(toLocalDatetime(entry.timestamp));
   const [type, setType] = useState<DiaperType>(entry.type);
   const [colorNote, setColorNote] = useState<ColorNote | ''>(entry.colorNote || '');
   const [notes, setNotes] = useState(entry.notes);
-
-  const save = () => {
-    updateDiaper(entry.id, { timestamp: fromLocalDatetime(timestamp), type, colorNote: colorNote || null, notes });
-    onClose();
-  };
-
+  const save = () => { updateDiaper(entry.id, { timestamp: fromLocalDatetime(timestamp), type, colorNote: colorNote || null, notes }); onClose(); };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-sm rounded-2xl">
@@ -149,35 +123,23 @@ function EditDiaperDialog({ entry, open, onClose }: { entry: DiaperChange; open:
           <label className="text-sm font-nunito text-muted-foreground">Type</label>
           <Select value={type} onValueChange={v => setType(v as DiaperType)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pee">💧 Pee</SelectItem>
-              <SelectItem value="poop">💩 Poop</SelectItem>
-              <SelectItem value="both">💧💩 Both</SelectItem>
-            </SelectContent>
+            <SelectContent><SelectItem value="pee">💧 Pee</SelectItem><SelectItem value="poop">💩 Poop</SelectItem><SelectItem value="both">💧💩 Both</SelectItem></SelectContent>
           </Select>
           <label className="text-sm font-nunito text-muted-foreground">Color / Consistency</label>
           <Select value={colorNote || 'none'} onValueChange={v => setColorNote(v === 'none' ? '' : v as ColorNote)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">None</SelectItem>
-              <SelectItem value="normal">Normal</SelectItem>
-              <SelectItem value="unusual">Unusual</SelectItem>
-              <SelectItem value="bloody">Bloody</SelectItem>
-            </SelectContent>
+            <SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="normal">Normal</SelectItem><SelectItem value="unusual">Unusual</SelectItem><SelectItem value="bloody">Bloody</SelectItem></SelectContent>
           </Select>
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-teal hover:bg-nurture-teal/90 text-white font-nunito">Save</Button>
-        </DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-teal hover:bg-nurture-teal/90 text-white font-nunito">Save</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-/* ── Add Past Diaper Dialog ───────────────────────────────────── */
-
+/* ── Add Past Diaper Dialog ── */
 function AddDiaperDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addPastDiaper } = useApp();
   const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
@@ -185,12 +147,7 @@ function AddDiaperDialog({ open, onClose }: { open: boolean; onClose: () => void
   const [type, setType] = useState<DiaperType>('pee');
   const [colorNote, setColorNote] = useState<ColorNote | ''>('');
   const [notes, setNotes] = useState('');
-
-  const save = () => {
-    addPastDiaper({ timestamp: fromLocalDatetime(timestamp), type, colorNote: colorNote || null, notes });
-    onClose();
-  };
-
+  const save = () => { addPastDiaper({ timestamp: fromLocalDatetime(timestamp), type, colorNote: colorNote || null, notes }); onClose(); };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-sm rounded-2xl">
@@ -201,50 +158,34 @@ function AddDiaperDialog({ open, onClose }: { open: boolean; onClose: () => void
           <label className="text-sm font-nunito text-muted-foreground">Type</label>
           <Select value={type} onValueChange={v => setType(v as DiaperType)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pee">💧 Pee</SelectItem>
-              <SelectItem value="poop">💩 Poop</SelectItem>
-              <SelectItem value="both">💧💩 Both</SelectItem>
-            </SelectContent>
+            <SelectContent><SelectItem value="pee">💧 Pee</SelectItem><SelectItem value="poop">💩 Poop</SelectItem><SelectItem value="both">💧💩 Both</SelectItem></SelectContent>
           </Select>
           <label className="text-sm font-nunito text-muted-foreground">Color / Consistency</label>
           <Select value={colorNote || 'none'} onValueChange={v => setColorNote(v === 'none' ? '' : v as ColorNote)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">None</SelectItem>
-              <SelectItem value="normal">Normal</SelectItem>
-              <SelectItem value="unusual">Unusual</SelectItem>
-              <SelectItem value="bloody">Bloody</SelectItem>
-            </SelectContent>
+            <SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="normal">Normal</SelectItem><SelectItem value="unusual">Unusual</SelectItem><SelectItem value="bloody">Bloody</SelectItem></SelectContent>
           </Select>
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-teal hover:bg-nurture-teal/90 text-white font-nunito">Add Entry</Button>
-        </DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-teal hover:bg-nurture-teal/90 text-white font-nunito">Add Entry</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-/* ── Edit Sleep Dialog ────────────────────────────────────────── */
-
+/* ── Edit Sleep Dialog ── */
 function EditSleepDialog({ entry, open, onClose }: { entry: SleepSession; open: boolean; onClose: () => void }) {
   const { updateSleep } = useApp();
   const [startTime, setStartTime] = useState(toLocalDatetime(entry.startTime));
   const [endTime, setEndTime] = useState(entry.endTime ? toLocalDatetime(entry.endTime) : '');
   const [sleepType, setSleepType] = useState<SleepType>(entry.sleepType);
   const [notes, setNotes] = useState(entry.notes);
-
   const save = () => {
-    const st = fromLocalDatetime(startTime);
-    const et = endTime ? fromLocalDatetime(endTime) : null;
+    const st = fromLocalDatetime(startTime); const et = endTime ? fromLocalDatetime(endTime) : null;
     const dur = et ? Math.floor((new Date(et).getTime() - new Date(st).getTime()) / 1000) : null;
-    updateSleep(entry.id, { startTime: st, endTime: et, durationSeconds: dur, sleepType, notes });
-    onClose();
+    updateSleep(entry.id, { startTime: st, endTime: et, durationSeconds: dur, sleepType, notes }); onClose();
   };
-
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-sm rounded-2xl">
@@ -257,24 +198,18 @@ function EditSleepDialog({ entry, open, onClose }: { entry: SleepSession; open: 
           <label className="text-sm font-nunito text-muted-foreground">Sleep Type</label>
           <Select value={sleepType} onValueChange={v => setSleepType(v as SleepType)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="nap">☀️ Nap</SelectItem>
-              <SelectItem value="night">🌙 Night Sleep</SelectItem>
-            </SelectContent>
+            <SelectContent><SelectItem value="nap">☀️ Nap</SelectItem><SelectItem value="night">🌙 Night Sleep</SelectItem></SelectContent>
           </Select>
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-blue hover:bg-nurture-blue/90 text-white font-nunito">Save</Button>
-        </DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-blue hover:bg-nurture-blue/90 text-white font-nunito">Save</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-/* ── Add Past Sleep Dialog ────────────────────────────────────── */
-
+/* ── Add Past Sleep Dialog ── */
 function AddSleepDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addPastSleep } = useApp();
   const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
@@ -282,15 +217,11 @@ function AddSleepDialog({ open, onClose }: { open: boolean; onClose: () => void 
   const [endTime, setEndTime] = useState(now);
   const [sleepType, setSleepType] = useState<SleepType>('nap');
   const [notes, setNotes] = useState('');
-
   const save = () => {
-    const st = fromLocalDatetime(startTime);
-    const et = fromLocalDatetime(endTime);
+    const st = fromLocalDatetime(startTime); const et = fromLocalDatetime(endTime);
     const dur = Math.max(0, Math.floor((new Date(et).getTime() - new Date(st).getTime()) / 1000));
-    addPastSleep({ startTime: st, endTime: et, durationSeconds: dur, sleepType, notes });
-    onClose();
+    addPastSleep({ startTime: st, endTime: et, durationSeconds: dur, sleepType, notes }); onClose();
   };
-
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-sm rounded-2xl">
@@ -303,70 +234,287 @@ function AddSleepDialog({ open, onClose }: { open: boolean; onClose: () => void 
           <label className="text-sm font-nunito text-muted-foreground">Sleep Type</label>
           <Select value={sleepType} onValueChange={v => setSleepType(v as SleepType)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="nap">☀️ Nap</SelectItem>
-              <SelectItem value="night">🌙 Night Sleep</SelectItem>
-            </SelectContent>
+            <SelectContent><SelectItem value="nap">☀️ Nap</SelectItem><SelectItem value="night">🌙 Night Sleep</SelectItem></SelectContent>
           </Select>
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-blue hover:bg-nurture-blue/90 text-white font-nunito">Add Entry</Button>
-        </DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-blue hover:bg-nurture-blue/90 text-white font-nunito">Add Entry</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-/* ── Main History Page ────────────────────────────────────────── */
+/* ── Edit Pumping Dialog ── */
+function EditPumpingDialog({ entry, open, onClose }: { entry: PumpingSession; open: boolean; onClose: () => void }) {
+  const { updatePumping, profile } = useApp();
+  const unit = profile?.unitPreference || 'oz';
+  const fromOz = (oz: number) => unit === 'ml' ? oz * 29.5735 : oz;
+  const toOz = (val: number) => unit === 'ml' ? val / 29.5735 : val;
+  const [startTime, setStartTime] = useState(toLocalDatetime(entry.startTime));
+  const [endTime, setEndTime] = useState(entry.endTime ? toLocalDatetime(entry.endTime) : '');
+  const [side, setSide] = useState<Side>(entry.side);
+  const [volume, setVolume] = useState(entry.volumeOz ? fromOz(entry.volumeOz).toFixed(1) : '');
+  const [notes, setNotes] = useState(entry.notes);
+  const save = () => {
+    const st = fromLocalDatetime(startTime); const et = endTime ? fromLocalDatetime(endTime) : null;
+    const dur = et ? Math.floor((new Date(et).getTime() - new Date(st).getTime()) / 1000) : null;
+    const vol = volume ? toOz(parseFloat(volume)) : null;
+    updatePumping(entry.id, { startTime: st, endTime: et, durationSeconds: dur, side, volumeOz: vol, notes }); onClose();
+  };
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm rounded-2xl">
+        <DialogHeader><DialogTitle className="font-quicksand">Edit Pumping Session</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <label className="text-sm font-nunito text-muted-foreground">Start Time</label>
+          <Input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">End Time</label>
+          <Input type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">Side</label>
+          <Select value={side} onValueChange={v => setSide(v as Side)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="left">Left</SelectItem><SelectItem value="right">Right</SelectItem><SelectItem value="both">Both</SelectItem></SelectContent>
+          </Select>
+          <label className="text-sm font-nunito text-muted-foreground">Volume ({unit})</label>
+          <Input type="number" min="0" step="0.1" value={volume} onChange={e => setVolume(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">Notes</label>
+          <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
+        </div>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-amber hover:bg-nurture-amber/90 text-white font-nunito">Save</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
+/* ── Add Past Pumping Dialog ── */
+function AddPumpingDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { addPastPumping, profile } = useApp();
+  const unit = profile?.unitPreference || 'oz';
+  const toOz = (val: number) => unit === 'ml' ? val / 29.5735 : val;
+  const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
+  const [startTime, setStartTime] = useState(now);
+  const [endTime, setEndTime] = useState(now);
+  const [side, setSide] = useState<Side>('both');
+  const [volume, setVolume] = useState('');
+  const [notes, setNotes] = useState('');
+  const save = () => {
+    const st = fromLocalDatetime(startTime); const et = fromLocalDatetime(endTime);
+    const dur = Math.max(0, Math.floor((new Date(et).getTime() - new Date(st).getTime()) / 1000));
+    const vol = volume ? toOz(parseFloat(volume)) : null;
+    addPastPumping({ startTime: st, endTime: et, durationSeconds: dur, side, volumeOz: vol, notes }); onClose();
+  };
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm rounded-2xl">
+        <DialogHeader><DialogTitle className="font-quicksand">Add Past Pumping Session</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <label className="text-sm font-nunito text-muted-foreground">Start Time</label>
+          <Input type="datetime-local" value={startTime} onChange={e => setStartTime(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">End Time</label>
+          <Input type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">Side</label>
+          <Select value={side} onValueChange={v => setSide(v as Side)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="left">Left</SelectItem><SelectItem value="right">Right</SelectItem><SelectItem value="both">Both</SelectItem></SelectContent>
+          </Select>
+          <label className="text-sm font-nunito text-muted-foreground">Volume ({unit})</label>
+          <Input type="number" min="0" step="0.1" value={volume} onChange={e => setVolume(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">Notes</label>
+          <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
+        </div>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-amber hover:bg-nurture-amber/90 text-white font-nunito">Add Entry</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ── Edit Bottle Feed Dialog ── */
+function EditBottleDialog({ entry, open, onClose }: { entry: BottleFeed; open: boolean; onClose: () => void }) {
+  const { updateBottleFeed, profile } = useApp();
+  const unit = profile?.unitPreference || 'oz';
+  const fromOz = (oz: number) => unit === 'ml' ? oz * 29.5735 : oz;
+  const toOz = (val: number) => unit === 'ml' ? val / 29.5735 : val;
+  const [timestamp, setTimestamp] = useState(toLocalDatetime(entry.timestamp));
+  const [amount, setAmount] = useState(fromOz(entry.amountOz).toFixed(1));
+  const [contentType, setContentType] = useState<ContentType>(entry.contentType);
+  const [notes, setNotes] = useState(entry.notes);
+  const save = () => {
+    updateBottleFeed(entry.id, { timestamp: fromLocalDatetime(timestamp), amountOz: toOz(parseFloat(amount) || 0), contentType, notes }); onClose();
+  };
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm rounded-2xl">
+        <DialogHeader><DialogTitle className="font-quicksand">Edit Bottle Feed</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <label className="text-sm font-nunito text-muted-foreground">Time</label>
+          <Input type="datetime-local" value={timestamp} onChange={e => setTimestamp(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">Amount ({unit})</label>
+          <Input type="number" min="0" step="0.1" value={amount} onChange={e => setAmount(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">Content Type</label>
+          <Select value={contentType} onValueChange={v => setContentType(v as ContentType)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="breast_milk">🤱 Breast Milk</SelectItem><SelectItem value="formula">🍼 Formula</SelectItem><SelectItem value="mixed">🥛 Mixed</SelectItem></SelectContent>
+          </Select>
+          <label className="text-sm font-nunito text-muted-foreground">Notes</label>
+          <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
+        </div>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Save</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ── Add Past Bottle Feed Dialog ── */
+function AddBottleDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { addPastBottleFeed, profile } = useApp();
+  const unit = profile?.unitPreference || 'oz';
+  const toOz = (val: number) => unit === 'ml' ? val / 29.5735 : val;
+  const now = format(new Date(), "yyyy-MM-dd'T'HH:mm");
+  const [timestamp, setTimestamp] = useState(now);
+  const [amount, setAmount] = useState('');
+  const [contentType, setContentType] = useState<ContentType>('breast_milk');
+  const [notes, setNotes] = useState('');
+  const save = () => {
+    const amtOz = toOz(parseFloat(amount) || 0);
+    if (amtOz <= 0) return;
+    addPastBottleFeed({ timestamp: fromLocalDatetime(timestamp), amountOz: amtOz, contentType, notes }); onClose();
+  };
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm rounded-2xl">
+        <DialogHeader><DialogTitle className="font-quicksand">Add Past Bottle Feed</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <label className="text-sm font-nunito text-muted-foreground">Time</label>
+          <Input type="datetime-local" value={timestamp} onChange={e => setTimestamp(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">Amount ({unit})</label>
+          <Input type="number" min="0" step="0.1" placeholder={`0.0 ${unit}`} value={amount} onChange={e => setAmount(e.target.value)} />
+          <label className="text-sm font-nunito text-muted-foreground">Content Type</label>
+          <Select value={contentType} onValueChange={v => setContentType(v as ContentType)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="breast_milk">🤱 Breast Milk</SelectItem><SelectItem value="formula">🍼 Formula</SelectItem><SelectItem value="mixed">🥛 Mixed</SelectItem></SelectContent>
+          </Select>
+          <label className="text-sm font-nunito text-muted-foreground">Notes</label>
+          <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
+        </div>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Add Entry</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ── Main History Page ── */
 export default function History() {
-  const { feedings, deleteFeeding, diapers, deleteDiaper, sleeps, deleteSleep } = useApp();
+  const { feedings, deleteFeeding, diapers, deleteDiaper, sleeps, deleteSleep, pumpings, deletePumping, bottleFeeds, deleteBottleFeed, profile } = useApp();
+  const unit = profile?.unitPreference || 'oz';
+  const fromOz = (oz: number) => unit === 'ml' ? oz * 29.5735 : oz;
 
   const [editFeeding, setEditFeeding] = useState<FeedingSession | null>(null);
   const [editDiaper, setEditDiaper] = useState<DiaperChange | null>(null);
   const [editSleep, setEditSleep] = useState<SleepSession | null>(null);
+  const [editPumping, setEditPumping] = useState<PumpingSession | null>(null);
+  const [editBottle, setEditBottle] = useState<BottleFeed | null>(null);
   const [addFeedingOpen, setAddFeedingOpen] = useState(false);
   const [addDiaperOpen, setAddDiaperOpen] = useState(false);
   const [addSleepOpen, setAddSleepOpen] = useState(false);
+  const [addPumpingOpen, setAddPumpingOpen] = useState(false);
+  const [addBottleOpen, setAddBottleOpen] = useState(false);
+
+  // Merge breastfeeding + bottle feeds for the feeding tab, sorted by time
+  const allFeedingEntries: Array<{ type: 'breast'; data: FeedingSession } | { type: 'bottle'; data: BottleFeed }> = [
+    ...feedings.filter(f => f.endTime).map(f => ({ type: 'breast' as const, data: f, time: new Date(f.startTime).getTime() })),
+    ...bottleFeeds.map(b => ({ type: 'bottle' as const, data: b, time: new Date(b.timestamp).getTime() })),
+  ].sort((a, b) => b.time - a.time);
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-lg mx-auto px-4 pt-6">
         <h1 className="text-2xl font-quicksand font-bold text-foreground mb-4">History</h1>
         <Tabs defaultValue="feeding">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="feeding" className="font-nunito text-xs gap-1"><Baby className="w-3.5 h-3.5" /> Feeding</TabsTrigger>
+            <TabsTrigger value="pumping" className="font-nunito text-xs gap-1"><Milk className="w-3.5 h-3.5" /> Pumping</TabsTrigger>
             <TabsTrigger value="diaper" className="font-nunito text-xs gap-1"><Droplets className="w-3.5 h-3.5" /> Diaper</TabsTrigger>
             <TabsTrigger value="sleep" className="font-nunito text-xs gap-1"><Moon className="w-3.5 h-3.5" /> Sleep</TabsTrigger>
           </TabsList>
 
-          {/* ── Feeding Tab ── */}
+          {/* ── Feeding Tab (breast + bottle) ── */}
           <TabsContent value="feeding">
-            <Button onClick={() => setAddFeedingOpen(true)} variant="outline" className="w-full mb-3 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-purple/30 text-nurture-purple">
-              <Plus className="w-4 h-4" /> Add Past Entry
-            </Button>
-            {feedings.filter(f => f.endTime).length === 0 ? (
-              <EmptyState text="No feeding sessions yet" />
+            <div className="flex gap-2 mb-3">
+              <Button onClick={() => setAddFeedingOpen(true)} variant="outline" className="flex-1 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-purple/30 text-nurture-purple">
+                <Plus className="w-4 h-4" /> Breast Feed
+              </Button>
+              <Button onClick={() => setAddBottleOpen(true)} variant="outline" className="flex-1 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-purple/30 text-nurture-purple">
+                <Plus className="w-4 h-4" /> Bottle Feed
+              </Button>
+            </div>
+            {allFeedingEntries.length === 0 ? (
+              <EmptyState text="No feeding entries yet" />
             ) : (
               <div className="space-y-2">
-                {feedings.filter(f => f.endTime).map(f => (
-                  <div key={f.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-purple">
+                {allFeedingEntries.map(entry => {
+                  if (entry.type === 'breast') {
+                    const f = entry.data as FeedingSession;
+                    return (
+                      <div key={f.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-purple">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(f.startTime)} 🤱</p>
+                          <p className="text-xs text-muted-foreground font-nunito">
+                            {sideLabel[f.side]} · {formatDuration(f.durationSeconds || 0)}
+                          </p>
+                          {f.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{f.notes}"</p>}
+                        </div>
+                        <div className="flex gap-1">
+                          <button onClick={() => setEditFeeding(f)} className="text-muted-foreground hover:text-nurture-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                          <button onClick={() => deleteFeeding(f.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    const b = entry.data as BottleFeed;
+                    return (
+                      <div key={b.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-purple/60">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(b.timestamp)} 🍼</p>
+                          <p className="text-xs text-muted-foreground font-nunito">
+                            {fromOz(b.amountOz).toFixed(1)} {unit} · {contentLabel[b.contentType]}
+                          </p>
+                          {b.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{b.notes}"</p>}
+                        </div>
+                        <div className="flex gap-1">
+                          <button onClick={() => setEditBottle(b)} className="text-muted-foreground hover:text-nurture-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                          <button onClick={() => deleteBottleFeed(b.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
+                        </div>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ── Pumping Tab ── */}
+          <TabsContent value="pumping">
+            <Button onClick={() => setAddPumpingOpen(true)} variant="outline" className="w-full mb-3 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-amber/30 text-nurture-amber">
+              <Plus className="w-4 h-4" /> Add Past Entry
+            </Button>
+            {pumpings.filter(p => p.endTime).length === 0 ? (
+              <EmptyState text="No pumping sessions yet" />
+            ) : (
+              <div className="space-y-2">
+                {pumpings.filter(p => p.endTime).map(p => (
+                  <div key={p.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-amber">
                     <div className="flex-1 min-w-0">
-                      <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(f.startTime)}</p>
+                      <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(p.startTime)}</p>
                       <p className="text-xs text-muted-foreground font-nunito">
-                        {sideLabel[f.side]} · {formatDuration(f.durationSeconds || 0)}
+                        {sideLabel[p.side]} · {formatDuration(p.durationSeconds || 0)}
+                        {p.volumeOz ? ` · ${fromOz(p.volumeOz).toFixed(1)} ${unit}` : ''}
                       </p>
-                      {f.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{f.notes}"</p>}
+                      {p.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{p.notes}"</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditFeeding(f)} className="text-muted-foreground hover:text-nurture-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => deleteFeeding(f.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <button onClick={() => setEditPumping(p)} className="text-muted-foreground hover:text-nurture-amber p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => deletePumping(p.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
                 ))}
@@ -391,12 +539,8 @@ export default function History() {
                       {d.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{d.notes}"</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditDiaper(d)} className="text-muted-foreground hover:text-nurture-teal p-2 min-h-[40px] min-w-[40px] flex items-center justify-center">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => deleteDiaper(d.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <button onClick={() => setEditDiaper(d)} className="text-muted-foreground hover:text-nurture-teal p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => deleteDiaper(d.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
                 ))}
@@ -423,12 +567,8 @@ export default function History() {
                       {s.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{s.notes}"</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditSleep(s)} className="text-muted-foreground hover:text-nurture-blue p-2 min-h-[40px] min-w-[40px] flex items-center justify-center">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => deleteSleep(s.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <button onClick={() => setEditSleep(s)} className="text-muted-foreground hover:text-nurture-blue p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => deleteSleep(s.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
                 ))}
@@ -442,9 +582,13 @@ export default function History() {
       {editFeeding && <EditFeedingDialog entry={editFeeding} open={true} onClose={() => setEditFeeding(null)} />}
       {editDiaper && <EditDiaperDialog entry={editDiaper} open={true} onClose={() => setEditDiaper(null)} />}
       {editSleep && <EditSleepDialog entry={editSleep} open={true} onClose={() => setEditSleep(null)} />}
+      {editPumping && <EditPumpingDialog entry={editPumping} open={true} onClose={() => setEditPumping(null)} />}
+      {editBottle && <EditBottleDialog entry={editBottle} open={true} onClose={() => setEditBottle(null)} />}
       <AddFeedingDialog open={addFeedingOpen} onClose={() => setAddFeedingOpen(false)} />
       <AddDiaperDialog open={addDiaperOpen} onClose={() => setAddDiaperOpen(false)} />
       <AddSleepDialog open={addSleepOpen} onClose={() => setAddSleepOpen(false)} />
+      <AddPumpingDialog open={addPumpingOpen} onClose={() => setAddPumpingOpen(false)} />
+      <AddBottleDialog open={addBottleOpen} onClose={() => setAddBottleOpen(false)} />
     </div>
   );
 }
