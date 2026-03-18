@@ -58,6 +58,7 @@ export default {
           blue: "hsl(var(--nurture-blue))",
           cream: "hsl(var(--nurture-cream))",
           charcoal: "hsl(var(--nurture-charcoal))",
+          amber: "hsl(var(--nurture-amber))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

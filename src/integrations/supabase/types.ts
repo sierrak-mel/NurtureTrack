@@ -22,6 +22,7 @@ export type Database = {
           family_id: string
           id: string
           name: string
+          unit_preference: string
           updated_at: string
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           family_id: string
           id?: string
           name: string
+          unit_preference?: string
           updated_at?: string
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           family_id?: string
           id?: string
           name?: string
+          unit_preference?: string
           updated_at?: string
         }
         Relationships: [
@@ -48,6 +51,54 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bottle_feeds: {
+        Row: {
+          amount_oz: number
+          baby_profile_id: string
+          caregiver_id: string | null
+          content_type: Database["public"]["Enums"]["content_type"]
+          created_at: string
+          id: string
+          notes: string | null
+          timestamp: string
+        }
+        Insert: {
+          amount_oz: number
+          baby_profile_id: string
+          caregiver_id?: string | null
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          id?: string
+          notes?: string | null
+          timestamp?: string
+        }
+        Update: {
+          amount_oz?: number
+          baby_profile_id?: string
+          caregiver_id?: string | null
+          content_type?: Database["public"]["Enums"]["content_type"]
+          created_at?: string
+          id?: string
+          notes?: string | null
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bottle_feeds_baby_profile_id_fkey"
+            columns: ["baby_profile_id"]
+            isOneToOne: false
+            referencedRelation: "baby_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bottle_feeds_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "caregivers"
             referencedColumns: ["id"]
           },
         ]
@@ -248,6 +299,60 @@ export type Database = {
           },
         ]
       }
+      pumping_sessions: {
+        Row: {
+          baby_profile_id: string
+          caregiver_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          end_time: string | null
+          id: string
+          notes: string | null
+          side: Database["public"]["Enums"]["feeding_side"]
+          start_time: string
+          volume_oz: number | null
+        }
+        Insert: {
+          baby_profile_id: string
+          caregiver_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          side?: Database["public"]["Enums"]["feeding_side"]
+          start_time: string
+          volume_oz?: number | null
+        }
+        Update: {
+          baby_profile_id?: string
+          caregiver_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          side?: Database["public"]["Enums"]["feeding_side"]
+          start_time?: string
+          volume_oz?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pumping_sessions_baby_profile_id_fkey"
+            columns: ["baby_profile_id"]
+            isOneToOne: false
+            referencedRelation: "baby_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pumping_sessions_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sleep_sessions: {
         Row: {
           baby_profile_id: string
@@ -313,6 +418,7 @@ export type Database = {
     Enums: {
       caregiver_role: "owner" | "member"
       color_note: "normal" | "unusual" | "bloody"
+      content_type: "breast_milk" | "formula" | "mixed"
       diaper_type: "pee" | "poop" | "both"
       feeding_side: "left" | "right" | "both"
       sleep_type: "nap" | "night"
@@ -445,6 +551,7 @@ export const Constants = {
     Enums: {
       caregiver_role: ["owner", "member"],
       color_note: ["normal", "unusual", "bloody"],
+      content_type: ["breast_milk", "formula", "mixed"],
       diaper_type: ["pee", "poop", "both"],
       feeding_side: ["left", "right", "both"],
       sleep_type: ["nap", "night"],

@@ -41,6 +41,7 @@
     --nurture-blue: 216 60% 68%;
     --nurture-cream: 40 33% 98%;
     --nurture-charcoal: 270 10% 18%;
+    --nurture-amber: 35 90% 55%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -78,6 +79,7 @@
     --nurture-blue: 216 50% 55%;
     --nurture-cream: 270 10% 8%;
     --nurture-charcoal: 40 33% 95%;
+    --nurture-amber: 35 85% 50%;
   }
 }
 
