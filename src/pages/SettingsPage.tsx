@@ -1,25 +1,73 @@
 import { useApp } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Side } from '@/types';
-import { LogOut, UserPlus, Trash2, Crown, User } from 'lucide-react';
+import { LogOut, Link2, Trash2, Crown, User, Copy, Check, RefreshCw } from 'lucide-react';
 
 export default function SettingsPage() {
   const { profile, setProfile, caregiver, caregivers, familyId } = useApp();
-  const { user, signOut } = useAuth();
+  const { user, signOut, claimInvite } = useAuth();
   const [name, setName] = useState(profile?.name || '');
   const [dob, setDob] = useState(profile?.dateOfBirth || '');
   const [side, setSide] = useState<Side>(profile?.defaultStartSide || 'left');
   const [saved, setSaved] = useState(false);
 
-  // Caregiver invite
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteName, setInviteName] = useState('');
-  const [inviting, setInviting] = useState(false);
+  // Invite system
+  const [inviteCode, setInviteCode] = useState('');
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [inviteMsg, setInviteMsg] = useState('');
 
+  // Join family
+  const [joinCode, setJoinCode] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [joinMsg, setJoinMsg] = useState('');
+
   const isOwner = caregiver?.role === 'owner';
+
+  useEffect(() => {
+    if (familyId && isOwner) loadActiveInvite();
+  }, [familyId, isOwner]);
+
+  const loadActiveInvite = async () => {
+    const { data } = await supabase
+      .from('family_invites')
+      .select('invite_code')
+      .eq('family_id', familyId!)
+      .eq('status', 'pending')
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (data) setInviteCode(data.invite_code);
+  };
+
+  const handleGenerateInvite = async () => {
+    if (!familyId) return;
+    setInviteLoading(true);
+    setInviteMsg('');
+    const { data, error } = await supabase
+      .from('family_invites')
+      .insert({ family_id: familyId, created_by: user!.id })
+      .select('invite_code')
+      .single();
+
+    if (error) {
+      setInviteMsg(error.message);
+    } else if (data) {
+      setInviteCode(data.invite_code);
+    }
+    setInviteLoading(false);
+  };
+
+  const inviteLink = inviteCode ? `${window.location.origin}/auth?invite=${inviteCode}` : '';
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleSave = () => {
     setProfile({ name, dateOfBirth: dob, defaultStartSide: side });
@@ -27,30 +75,18 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handleInvite = async () => {
-    if (!familyId || !inviteEmail.trim()) return;
-    setInviting(true);
-    setInviteMsg('');
-
-    // Check if user exists in auth
-    // For now, create a placeholder caregiver that will be linked when they sign up
-    // We store the invite_email so the system can match on signup
-    const { error } = await supabase.from('caregivers').insert({
-      family_id: familyId,
-      user_id: user!.id, // Temporary - will be updated when invited user signs up
-      display_name: inviteName || inviteEmail.split('@')[0],
-      role: 'member' as const,
-      invite_email: inviteEmail.trim().toLowerCase(),
-    });
-
+  const handleJoinFamily = async () => {
+    if (!joinCode.trim()) return;
+    setJoining(true);
+    setJoinMsg('');
+    const { error } = await claimInvite(joinCode.trim());
     if (error) {
-      setInviteMsg(error.message.includes('duplicate') ? 'This person is already in your family.' : error.message);
+      setJoinMsg(error.message);
     } else {
-      setInviteMsg(`Invited ${inviteEmail}!`);
-      setInviteEmail('');
-      setInviteName('');
+      setJoinMsg('Successfully joined the family! Reload to see changes.');
+      setJoinCode('');
     }
-    setInviting(false);
+    setJoining(false);
   };
 
   const handleRemoveCaregiver = async (id: string) => {
@@ -146,7 +182,6 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-nunito font-semibold text-foreground truncate">{cg.display_name}</p>
-                  {cg.invite_email && <p className="text-xs text-muted-foreground font-nunito truncate">{cg.invite_email}</p>}
                 </div>
                 {cg.role === 'owner' && <Crown className="w-4 h-4 text-primary" />}
                 {isOwner && cg.id !== caregiver?.id && (
@@ -161,30 +196,74 @@ export default function SettingsPage() {
             ))}
           </div>
 
+          {/* Owner: Generate invite link */}
           {isOwner && (
             <div className="border-t pt-4 space-y-3">
-              <h3 className="text-sm font-nunito font-semibold text-foreground">Invite a Caregiver</h3>
+              <h3 className="text-sm font-nunito font-semibold text-foreground flex items-center gap-2">
+                <Link2 className="w-4 h-4" /> Invite a Caregiver
+              </h3>
+              <p className="text-xs text-muted-foreground font-nunito">
+                Generate a unique invite link. Share it with anyone you want to join your family. Links expire in 7 days.
+              </p>
+
+              {inviteCode ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      readOnly
+                      value={inviteLink}
+                      className="flex-1 rounded-xl border border-input bg-muted px-3 py-3 text-xs font-nunito min-h-[48px] focus:outline-none truncate"
+                    />
+                    <button
+                      onClick={handleCopy}
+                      className="shrink-0 flex items-center gap-1 bg-primary text-primary-foreground rounded-xl px-4 py-3 font-semibold font-nunito text-sm min-h-[48px] hover:opacity-90 transition-opacity"
+                    >
+                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleGenerateInvite}
+                    disabled={inviteLoading}
+                    className="flex items-center gap-2 text-sm text-muted-foreground font-nunito hover:text-foreground transition-colors"
+                  >
+                    <RefreshCw className="w-3 h-3" /> Generate new link
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleGenerateInvite}
+                  disabled={inviteLoading}
+                  className="w-full flex items-center justify-center gap-2 bg-accent text-accent-foreground rounded-xl py-3 font-semibold font-nunito text-sm min-h-[48px] hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  <Link2 className="w-4 h-4" />
+                  {inviteLoading ? 'Generating...' : 'Generate Invite Link'}
+                </button>
+              )}
+              {inviteMsg && <p className="text-sm font-nunito text-destructive">{inviteMsg}</p>}
+            </div>
+          )}
+
+          {/* Non-owner or anyone: Join with code */}
+          {!isOwner && (
+            <div className="border-t pt-4 space-y-3">
+              <h3 className="text-sm font-nunito font-semibold text-foreground">Join a Family</h3>
+              <p className="text-xs text-muted-foreground font-nunito">
+                Enter an invite code to join another family's tracking.
+              </p>
               <input
-                value={inviteName}
-                onChange={e => setInviteName(e.target.value)}
-                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-nunito min-h-[48px] focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="Their name (e.g. Grandma)"
+                value={joinCode}
+                onChange={e => setJoinCode(e.target.value)}
+                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-nunito min-h-[48px] focus:outline-none focus:ring-2 focus:ring-ring font-mono tracking-wider"
+                placeholder="Enter invite code"
               />
-              <input
-                type="email"
-                value={inviteEmail}
-                onChange={e => setInviteEmail(e.target.value)}
-                className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-nunito min-h-[48px] focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="Their email address"
-              />
-              {inviteMsg && <p className="text-sm font-nunito text-muted-foreground">{inviteMsg}</p>}
+              {joinMsg && <p className="text-sm font-nunito text-muted-foreground">{joinMsg}</p>}
               <button
-                onClick={handleInvite}
-                disabled={inviting || !inviteEmail.trim()}
-                className="w-full flex items-center justify-center gap-2 bg-nurture-teal text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-sm min-h-[48px] hover:opacity-90 transition-opacity disabled:opacity-50"
+                onClick={handleJoinFamily}
+                disabled={joining || !joinCode.trim()}
+                className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-sm min-h-[48px] hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                <UserPlus className="w-4 h-4" />
-                {inviting ? 'Inviting...' : 'Send Invite'}
+                {joining ? 'Joining...' : 'Join Family'}
               </button>
             </div>
           )}

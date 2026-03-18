@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Baby } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Baby, Gift } from 'lucide-react';
 
 type Mode = 'login' | 'signup' | 'forgot';
 
 export default function AuthPage() {
   const { signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,6 +16,12 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  const inviteCode = searchParams.get('invite') || '';
+
+  useEffect(() => {
+    if (inviteCode) setMode('signup');
+  }, [inviteCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +35,7 @@ export default function AuthPage() {
         if (error) setError(error.message);
         else setMessage('Check your email for reset instructions.');
       } else if (mode === 'signup') {
-        const { error } = await signUp(email, password, displayName || 'Parent');
+        const { error } = await signUp(email, password, displayName || 'Parent', inviteCode || undefined);
         if (error) setError(error.message);
         else setMessage('Check your email to confirm your account.');
       } else {
@@ -53,6 +60,15 @@ export default function AuthPage() {
             {mode === 'login' ? 'Welcome back' : mode === 'signup' ? 'Create your account' : 'Reset password'}
           </p>
         </div>
+
+        {inviteCode && mode === 'signup' && (
+          <div className="flex items-center gap-2 bg-accent/50 rounded-xl px-4 py-3 mb-4 border border-accent">
+            <Gift className="w-4 h-4 text-primary shrink-0" />
+            <p className="text-sm font-nunito text-foreground">
+              You've been invited to join a family! Create an account to get started.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-6 shadow-sm space-y-4">
           {mode === 'signup' && (

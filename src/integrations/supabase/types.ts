@@ -153,6 +153,50 @@ export type Database = {
         }
         Relationships: []
       }
+      family_invites: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string
+          family_id: string
+          id: string
+          invite_code: string
+          status: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string
+          family_id: string
+          id?: string
+          invite_code?: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          family_id?: string
+          id?: string
+          invite_code?: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_invites_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feeding_sessions: {
         Row: {
           baby_profile_id: string
@@ -260,6 +304,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_invite: {
+        Args: { _display_name: string; _invite_code: string; _user_id: string }
+        Returns: Json
+      }
       get_user_family_ids: { Args: { _user_id: string }; Returns: string[] }
     }
     Enums: {

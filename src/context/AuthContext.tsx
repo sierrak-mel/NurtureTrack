@@ -6,10 +6,11 @@ interface AuthState {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, displayName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, displayName: string, inviteCode?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  claimInvite: (inviteCode: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -35,7 +36,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, displayName: string) => {
+  const claimInvite = async (inviteCode: string) => {
+    if (!user) return { error: { message: 'Not logged in' } };
+    const displayName = user.user_metadata?.display_name || 'Caregiver';
+    const { data, error } = await supabase.rpc('claim_invite', {
+      _invite_code: inviteCode,
+      _user_id: user.id,
+      _display_name: displayName,
+    });
+    if (error) return { error };
+    const result = data as any;
+    if (!result.success) return { error: { message: result.error } };
+    return { error: null };
+  };
+
+  const signUp = async (email: string, password: string, displayName: string, inviteCode?: string) => {
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
@@ -44,30 +59,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: { display_name: displayName },
       },
     });
-    if (!error && data.user) {
-      // Create family + caregiver + baby profile on signup
-      const { data: familyData, error: familyError } = await supabase
-        .from('families')
-        .insert({})
-        .select('id')
-        .single();
+    if (error) return { error };
 
-      if (!familyError && familyData) {
-        await supabase.from('caregivers').insert({
-          family_id: familyData.id,
-          user_id: data.user.id,
-          display_name: displayName,
-          role: 'owner' as const,
+    if (data.user) {
+      if (inviteCode) {
+        // Claim the invite to join existing family
+        const { data: result, error: rpcError } = await supabase.rpc('claim_invite', {
+          _invite_code: inviteCode,
+          _user_id: data.user.id,
+          _display_name: displayName,
         });
+        if (rpcError) return { error: rpcError };
+        const parsed = result as any;
+        if (!parsed.success) return { error: { message: parsed.error } };
+      } else {
+        // Create new family
+        const { data: familyData, error: familyError } = await supabase
+          .from('families')
+          .insert({})
+          .select('id')
+          .single();
 
-        await supabase.from('baby_profiles').insert({
-          family_id: familyData.id,
-          name: 'Baby',
-          default_start_side: 'left' as const,
-        });
+        if (!familyError && familyData) {
+          await supabase.from('caregivers').insert({
+            family_id: familyData.id,
+            user_id: data.user.id,
+            display_name: displayName,
+            role: 'owner' as const,
+          });
+
+          await supabase.from('baby_profiles').insert({
+            family_id: familyData.id,
+            name: 'Baby',
+            default_start_side: 'left' as const,
+          });
+        }
       }
     }
-    return { error };
+    return { error: null };
   };
 
   const signIn = async (email: string, password: string) => {
@@ -87,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, resetPassword }}>
+    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, resetPassword, claimInvite }}>
       {children}
     </AuthContext.Provider>
   );
