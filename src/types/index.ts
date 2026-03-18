@@ -2,6 +2,8 @@ export type Side = 'left' | 'right' | 'both';
 export type DiaperType = 'pee' | 'poop' | 'both';
 export type ColorNote = 'normal' | 'unusual' | 'bloody';
 export type SleepType = 'nap' | 'night';
+export type ContentType = 'breast_milk' | 'formula' | 'mixed';
+export type UnitPreference = 'oz' | 'ml';
 
 export interface FeedingSession {
   id: string;
@@ -29,8 +31,27 @@ export interface SleepSession {
   notes: string;
 }
 
+export interface PumpingSession {
+  id: string;
+  startTime: string;
+  endTime: string | null;
+  durationSeconds: number | null;
+  side: Side;
+  volumeOz: number | null;
+  notes: string;
+}
+
+export interface BottleFeed {
+  id: string;
+  timestamp: string;
+  amountOz: number;
+  contentType: ContentType;
+  notes: string;
+}
+
 export interface BabyProfile {
   name: string;
   dateOfBirth: string;
   defaultStartSide: Side;
+  unitPreference: UnitPreference;
 }
