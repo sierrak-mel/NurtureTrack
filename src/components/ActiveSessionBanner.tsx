@@ -1,12 +1,13 @@
 import { useApp } from '@/context/AppContext';
 import { useTimer, formatTimer } from '@/hooks/useTimer';
-import { Baby, Moon } from 'lucide-react';
+import { Baby, Moon, Milk } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function ActiveSessionBanner() {
-  const { activeFeeding, stopFeeding, activeSleep, stopSleep } = useApp();
+  const { activeFeeding, stopFeeding, activeSleep, stopSleep, activePumping, stopPumping } = useApp();
   const feedElapsed = useTimer(activeFeeding?.startTime || null);
   const sleepElapsed = useTimer(activeSleep?.startTime || null);
+  const pumpElapsed = useTimer(activePumping?.startTime || null);
 
   const sessions = [
     activeFeeding && {
@@ -16,6 +17,14 @@ export function ActiveSessionBanner() {
       color: 'bg-nurture-purple',
       onStop: () => stopFeeding(),
       longRunning: feedElapsed > 7200,
+    },
+    activePumping && {
+      type: 'Pumping',
+      icon: Milk,
+      elapsed: pumpElapsed,
+      color: 'bg-nurture-amber',
+      onStop: () => stopPumping(),
+      longRunning: pumpElapsed > 7200,
     },
     activeSleep && {
       type: 'Sleeping',

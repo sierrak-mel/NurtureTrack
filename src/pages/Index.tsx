@@ -1,6 +1,7 @@
 import { FeedingCard } from '@/components/FeedingCard';
 import { DiaperCard } from '@/components/DiaperCard';
 import { SleepCard } from '@/components/SleepCard';
+import { PumpingCard } from '@/components/PumpingCard';
 import { ActiveSessionBanner } from '@/components/ActiveSessionBanner';
 import { useApp } from '@/context/AppContext';
 
@@ -23,6 +24,7 @@ const Index = () => {
         </header>
         <div className="space-y-4">
           <FeedingCard />
+          <PumpingCard />
           <DiaperCard />
           <SleepCard />
         </div>
