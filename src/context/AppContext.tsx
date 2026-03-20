@@ -92,7 +92,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const loadData = async () => {
     if (!user) return;
     setLoading(true);
-    let { data: cg } = await supabase.from('caregivers').select('*').eq('user_id', user.id).maybeSingle();
+    const { data: cgRows } = await supabase.from('caregivers').select('*').eq('user_id', user.id).limit(1);
+    let cg = cgRows?.[0] || null;
     if (!cg) {
       // Account exists but DB records were never created (e.g. signup RLS race condition).
       // Generate family ID client-side to avoid needing a SELECT after INSERT (which RLS blocks).
