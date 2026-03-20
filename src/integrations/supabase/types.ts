@@ -299,6 +299,41 @@ export type Database = {
           },
         ]
       }
+      height_logs: {
+        Row: {
+          baby_profile_id: string
+          created_at: string
+          date: string
+          height_inches: number
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          baby_profile_id: string
+          created_at?: string
+          date: string
+          height_inches: number
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          baby_profile_id?: string
+          created_at?: string
+          date?: string
+          height_inches?: number
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "height_logs_baby_profile_id_fkey"
+            columns: ["baby_profile_id"]
+            isOneToOne: false
+            referencedRelation: "baby_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pumping_sessions: {
         Row: {
           baby_profile_id: string
@@ -400,6 +435,41 @@ export type Database = {
             columns: ["caregiver_id"]
             isOneToOne: false
             referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weight_logs: {
+        Row: {
+          baby_profile_id: string
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          weight_oz: number
+        }
+        Insert: {
+          baby_profile_id: string
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          weight_oz: number
+        }
+        Update: {
+          baby_profile_id?: string
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          weight_oz?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weight_logs_baby_profile_id_fkey"
+            columns: ["baby_profile_id"]
+            isOneToOne: false
+            referencedRelation: "baby_profiles"
             referencedColumns: ["id"]
           },
         ]
