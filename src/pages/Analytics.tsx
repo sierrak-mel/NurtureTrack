@@ -9,6 +9,7 @@ import {
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { FeedingSession, DiaperChange, SleepSession } from '@/types';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
@@ -95,7 +96,7 @@ function FeedingCharts({ feedings, days }: { feedings: FeedingSession[]; days: 7
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey={days > 7 ? 'date' : 'day'} tick={{ fontSize: 11 }} interval={days > 7 ? 4 : 0} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={28} />
-            <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+            <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }} />
             <Bar dataKey="count" fill={PURPLE} radius={[6, 6, 0, 0]} name="Feeds" />
           </BarChart>
         </ResponsiveContainer>
@@ -110,7 +111,7 @@ function FeedingCharts({ feedings, days }: { feedings: FeedingSession[]; days: 7
                 {sideCounts.map((s, i) => <Cell key={i} fill={s.color} />)}
               </Pie>
               <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-              <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+              <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }} />
             </PieChart>
           </ResponsiveContainer>
         </Card>
@@ -152,7 +153,7 @@ function DiaperCharts({ diapers, days }: { diapers: DiaperChange[]; days: 7 | 30
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey={days > 7 ? 'date' : 'day'} tick={{ fontSize: 11 }} interval={days > 7 ? 4 : 0} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={28} />
-            <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+            <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }} />
             <Bar dataKey="pee" stackId="a" fill={TEAL_LIGHT} name="Pee" radius={[0, 0, 0, 0]} />
             <Bar dataKey="poop" stackId="a" fill={TEAL} name="Poop" radius={[6, 6, 0, 0]} />
           </BarChart>
@@ -204,7 +205,7 @@ function SleepCharts({ sleeps, days }: { sleeps: SleepSession[]; days: 7 | 30 })
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey={days > 7 ? 'date' : 'day'} tick={{ fontSize: 11 }} interval={days > 7 ? 4 : 0} />
             <YAxis tick={{ fontSize: 11 }} width={28} unit="h" />
-            <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12 }} />
+            <Tooltip contentStyle={{ borderRadius: 12, fontSize: 12, backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }} />
             <Bar dataKey="nap" stackId="a" fill={BLUE} name="Nap" />
             <Bar dataKey="night" stackId="a" fill="hsl(216,60%,48%)" name="Night" radius={[6, 6, 0, 0]} />
           </BarChart>
@@ -312,11 +313,17 @@ function WeeklyTimeline({ feedings, diapers, sleeps }: { feedings: FeedingSessio
 export default function Analytics() {
   const { feedings, diapers, sleeps } = useApp();
   const [days, setDays] = useState<7 | 30>(7);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
-        <h1 className="text-2xl font-quicksand font-bold text-foreground">Analytics</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-quicksand font-bold text-foreground">Analytics</h1>
+          <Button variant="outline" size="sm" className="font-nunito text-xs gap-1.5" onClick={() => navigate('/growth')}>
+            📈 Growth
+          </Button>
+        </div>
 
         {/* Weekly Timeline */}
         <Card className="p-4">

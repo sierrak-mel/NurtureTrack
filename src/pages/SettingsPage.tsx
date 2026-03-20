@@ -1,13 +1,24 @@
 import { useApp } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Side, UnitPreference } from '@/types';
-import { LogOut, Link2, Trash2, Crown, User, Copy, Check, RefreshCw } from 'lucide-react';
+import type { Side, UnitPreference, ThemeMode, FeedingReminderSettings } from '@/types';
+import { LogOut, Link2, Trash2, Crown, User, Copy, Check, RefreshCw, Sun, Moon, Monitor } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+
+const DEFAULT_REMINDER: FeedingReminderSettings = {
+  enabled: false,
+  daytimeStart: '07:00',
+  daytimeEnd: '21:00',
+  daytimeThresholdHrs: 3,
+  nighttimeThresholdHrs: 4,
+};
 
 export default function SettingsPage() {
   const { profile, setProfile, caregiver, caregivers, familyId } = useApp();
   const { user, signOut, claimInvite } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [name, setName] = useState(profile?.name || '');
   const [dob, setDob] = useState(profile?.dateOfBirth || '');
   const [side, setSide] = useState<Side>(profile?.defaultStartSide || 'left');
@@ -21,6 +32,18 @@ export default function SettingsPage() {
   const [joinCode, setJoinCode] = useState('');
   const [joining, setJoining] = useState(false);
   const [joinMsg, setJoinMsg] = useState('');
+
+  // Feeding reminders
+  const [reminder, setReminder] = useState<FeedingReminderSettings>(() => {
+    try {
+      const stored = localStorage.getItem('nurture-feeding-reminder');
+      return stored ? JSON.parse(stored) : DEFAULT_REMINDER;
+    } catch { return DEFAULT_REMINDER; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem('nurture-feeding-reminder', JSON.stringify(reminder)); } catch {}
+  }, [reminder]);
 
   const isOwner = caregiver?.role === 'owner';
 
@@ -73,6 +96,18 @@ export default function SettingsPage() {
     await supabase.from('caregivers').delete().eq('id', id);
   };
 
+  const themeOptions: { value: ThemeMode; label: string; icon: React.ReactNode }[] = [
+    { value: 'light', label: 'Light', icon: <Sun className="w-4 h-4" /> },
+    { value: 'dark', label: 'Dark', icon: <Moon className="w-4 h-4" /> },
+    { value: 'system', label: 'System', icon: <Monitor className="w-4 h-4" /> },
+  ];
+
+  const thresholdOptions = (min: number, max: number) => {
+    const opts: number[] = [];
+    for (let i = min; i <= max; i += 0.5) opts.push(i);
+    return opts;
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-4">
@@ -98,6 +133,25 @@ export default function SettingsPage() {
           <button onClick={signOut} className="w-full flex items-center justify-center gap-2 bg-secondary text-secondary-foreground rounded-xl py-3 font-semibold font-nunito text-sm min-h-[48px] hover:bg-secondary/80 transition-colors">
             <LogOut className="w-4 h-4" /> Sign Out
           </button>
+        </div>
+
+        {/* Appearance */}
+        <div className="bg-card rounded-2xl p-5 shadow-sm space-y-4">
+          <h2 className="font-quicksand font-bold text-lg text-foreground">Appearance</h2>
+          <div className="flex gap-2">
+            {themeOptions.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setTheme(opt.value)}
+                className={`flex-1 flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl text-sm font-semibold font-nunito min-h-[48px] transition-colors ${
+                  theme === opt.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                }`}
+              >
+                {opt.icon}
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Baby Profile */}
@@ -136,6 +190,65 @@ export default function SettingsPage() {
           </button>
         </div>
 
+        {/* Feeding Reminders */}
+        <div className="bg-card rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-quicksand font-bold text-lg text-foreground">Feeding Reminders</h2>
+            <Switch checked={reminder.enabled} onCheckedChange={v => setReminder(r => ({ ...r, enabled: v }))} />
+          </div>
+
+          {reminder.enabled && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-nunito font-semibold text-foreground mb-1 block">Daytime Window</label>
+                <div className="flex items-center gap-2">
+                  <input type="time" value={reminder.daytimeStart} onChange={e => setReminder(r => ({ ...r, daytimeStart: e.target.value }))}
+                    className="flex-1 rounded-xl border border-input bg-background px-3 py-3 text-sm font-nunito min-h-[48px] focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <span className="text-sm text-muted-foreground font-nunito">to</span>
+                  <input type="time" value={reminder.daytimeEnd} onChange={e => setReminder(r => ({ ...r, daytimeEnd: e.target.value }))}
+                    className="flex-1 rounded-xl border border-input bg-background px-3 py-3 text-sm font-nunito min-h-[48px] focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-nunito font-semibold text-foreground mb-1 block">
+                  Daytime alert: every <span className="text-primary font-bold">{reminder.daytimeThresholdHrs}</span> hrs
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {thresholdOptions(1, 6).map(h => (
+                    <button key={h} onClick={() => setReminder(r => ({ ...r, daytimeThresholdHrs: h }))}
+                      className={`px-3 py-2 rounded-lg text-xs font-nunito font-semibold min-h-[36px] transition-colors ${
+                        reminder.daytimeThresholdHrs === h ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                      }`}>
+                      {h}h
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-nunito font-semibold text-foreground mb-1 block">
+                  Nighttime alert: every <span className="text-primary font-bold">{reminder.nighttimeThresholdHrs}</span> hrs
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {thresholdOptions(1, 8).map(h => (
+                    <button key={h} onClick={() => setReminder(r => ({ ...r, nighttimeThresholdHrs: h }))}
+                      className={`px-3 py-2 rounded-lg text-xs font-nunito font-semibold min-h-[36px] transition-colors ${
+                        reminder.nighttimeThresholdHrs === h ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                      }`}>
+                      {h}h
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground font-nunito">
+                You'll see an in-app alert if no feeding is logged within the threshold for the current time of day.
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Caregivers */}
         <div className="bg-card rounded-2xl p-5 shadow-sm space-y-4">
           <h2 className="font-quicksand font-bold text-lg text-foreground">Caregivers</h2>
@@ -154,7 +267,7 @@ export default function SettingsPage() {
           </div>
 
           {isOwner && (
-            <div className="border-t pt-4 space-y-3">
+            <div className="border-t border-border pt-4 space-y-3">
               <h3 className="text-sm font-nunito font-semibold text-foreground flex items-center gap-2"><Link2 className="w-4 h-4" /> Invite a Caregiver</h3>
               <p className="text-xs text-muted-foreground font-nunito">Generate a unique invite link. Share it with anyone you want to join your family. Links expire in 7 days.</p>
               {inviteCode ? (
@@ -177,7 +290,7 @@ export default function SettingsPage() {
           )}
 
           {!isOwner && (
-            <div className="border-t pt-4 space-y-3">
+            <div className="border-t border-border pt-4 space-y-3">
               <h3 className="text-sm font-nunito font-semibold text-foreground">Join a Family</h3>
               <p className="text-xs text-muted-foreground font-nunito">Enter an invite code to join another family's tracking.</p>
               <input value={joinCode} onChange={e => setJoinCode(e.target.value)} className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-nunito min-h-[48px] focus:outline-none focus:ring-2 focus:ring-ring font-mono tracking-wider" placeholder="Enter invite code" />
