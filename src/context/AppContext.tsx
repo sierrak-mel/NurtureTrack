@@ -92,8 +92,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const loadData = async () => {
     if (!user) return;
     setLoading(true);
-    const { data: cg } = await supabase.from('caregivers').select('*').eq('user_id', user.id).maybeSingle();
-    if (!cg) { setLoading(false); return; }
+    let { data: cg } = await supabase.from('caregivers').select('*').eq('user_id', user.id).maybeSingle();
+    if (!cg) {
+      // Account exists but DB records were never created (e.g. signup RLS race condition).
+      // Auto-create the family, caregiver, and baby profile now.
+      const { data: familyData, error: familyError } = await supabase
+        .from('families').insert({}).select('id').single();
+      if (!familyError && familyData) {
+        const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Caregiver';
+        await supabase.from('caregivers').insert({
+          family_id: familyData.id, user_id: user.id,
+          display_name: displayName, role: 'owner' as const,
+        });
+        await supabase.from('baby_profiles').insert({
+          family_id: familyData.id, name: 'Baby', default_start_side: 'left' as const,
+        });
+        const { data: newCg } = await supabase.from('caregivers').select('*').eq('user_id', user.id).maybeSingle();
+        cg = newCg;
+      }
+      if (!cg) { setLoading(false); return; }
+    }
     setCaregiver(cg as Caregiver);
     const { data: allCgs } = await supabase.from('caregivers').select('*').eq('family_id', cg.family_id);
     setCaregivers((allCgs || []) as Caregiver[]);
