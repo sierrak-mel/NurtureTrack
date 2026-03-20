@@ -5,10 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { AppProvider } from "@/context/AppContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { BottomNav } from "@/components/BottomNav";
 import Index from "./pages/Index";
 import History from "./pages/History";
 import Analytics from "./pages/Analytics";
+import GrowthPage from "./pages/GrowthPage";
 import SettingsPage from "./pages/SettingsPage";
 import AuthPage from "./pages/AuthPage";
 import ResetPassword from "./pages/ResetPassword";
@@ -48,6 +50,7 @@ const AppRoutes = () => (
         <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
         <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+        <Route path="/growth" element={<ProtectedRoute><GrowthPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
@@ -59,11 +62,13 @@ const AppRoutes = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <AppRoutes />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <AppRoutes />
+        </AuthProvider>
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
