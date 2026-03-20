@@ -95,17 +95,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     let { data: cg } = await supabase.from('caregivers').select('*').eq('user_id', user.id).maybeSingle();
     if (!cg) {
       // Account exists but DB records were never created (e.g. signup RLS race condition).
-      // Auto-create the family, caregiver, and baby profile now.
-      const { data: familyData, error: familyError } = await supabase
-        .from('families').insert({}).select('id').single();
-      if (!familyError && familyData) {
+      // Generate family ID client-side to avoid needing a SELECT after INSERT (which RLS blocks).
+      const familyId = crypto.randomUUID();
+      const { error: familyError } = await supabase.from('families').insert({ id: familyId });
+      if (!familyError) {
         const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Caregiver';
         await supabase.from('caregivers').insert({
-          family_id: familyData.id, user_id: user.id,
+          family_id: familyId, user_id: user.id,
           display_name: displayName, role: 'owner' as const,
         });
         await supabase.from('baby_profiles').insert({
-          family_id: familyData.id, name: 'Baby', default_start_side: 'left' as const,
+          family_id: familyId, name: 'Baby', default_start_side: 'left' as const,
         });
         const { data: newCg } = await supabase.from('caregivers').select('*').eq('user_id', user.id).maybeSingle();
         cg = newCg;
