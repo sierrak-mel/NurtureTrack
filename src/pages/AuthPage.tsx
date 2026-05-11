@@ -55,7 +55,7 @@ export default function AuthPage() {
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Baby className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-quicksand font-bold text-foreground">NurtureTrack</h1>
+          <h1 className="text-3xl font-quicksand font-bold text-foreground">Onesie</h1>
           <p className="text-sm text-muted-foreground font-nunito mt-1">
             {mode === 'login' ? 'Welcome back' : mode === 'signup' ? 'Create your account' : 'Reset password'}
           </p>
@@ -111,7 +111,7 @@ export default function AuthPage() {
           )}
 
           {error && <p className="text-sm text-destructive font-nunito">{error}</p>}
-          {message && <p className="text-sm text-nurture-teal font-nunito">{message}</p>}
+          {message && <p className="text-sm text-onesie-teal font-nunito">{message}</p>}
 
           <button
             type="submit"

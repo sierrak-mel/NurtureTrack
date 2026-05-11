@@ -36,13 +36,13 @@ export default function SettingsPage() {
   // Feeding reminders
   const [reminder, setReminder] = useState<FeedingReminderSettings>(() => {
     try {
-      const stored = localStorage.getItem('nurture-feeding-reminder');
+      const stored = localStorage.getItem('onesie-feeding-reminder');
       return stored ? JSON.parse(stored) : DEFAULT_REMINDER;
     } catch { return DEFAULT_REMINDER; }
   });
 
   useEffect(() => {
-    try { localStorage.setItem('nurture-feeding-reminder', JSON.stringify(reminder)); } catch {}
+    try { localStorage.setItem('onesie-feeding-reminder', JSON.stringify(reminder)); } catch {}
   }, [reminder]);
 
   const isOwner = caregiver?.role === 'owner';

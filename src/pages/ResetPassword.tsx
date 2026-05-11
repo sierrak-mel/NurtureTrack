@@ -52,7 +52,7 @@ export default function ResetPassword() {
             />
           </div>
           {error && <p className="text-sm text-destructive font-nunito">{error}</p>}
-          {message && <p className="text-sm text-nurture-teal font-nunito">{message}</p>}
+          {message && <p className="text-sm text-onesie-teal font-nunito">{message}</p>}
           <button
             type="submit"
             disabled={loading}

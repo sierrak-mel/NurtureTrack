@@ -19,10 +19,10 @@ export function DiaperCard() {
   const poopCount = todayDiapers.filter(d => d.type === 'poop' || d.type === 'both').length;
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-nurture-teal">
+    <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-onesie-teal">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-full bg-nurture-teal/10 flex items-center justify-center">
-          <Droplets className="w-4 h-4 text-nurture-teal" />
+        <div className="w-8 h-8 rounded-full bg-onesie-teal/10 flex items-center justify-center">
+          <Droplets className="w-4 h-4 text-onesie-teal" />
         </div>
         <h2 className="font-quicksand font-bold text-lg text-foreground">Diaper</h2>
       </div>
@@ -48,7 +48,7 @@ export function DiaperCard() {
           <button
             key={type}
             onClick={() => logDiaper(type)}
-            className="bg-nurture-teal text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-sm min-h-[48px] hover:opacity-90 transition-opacity flex flex-col items-center gap-1"
+            className="bg-onesie-teal text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-sm min-h-[48px] hover:opacity-90 transition-opacity flex flex-col items-center gap-1"
           >
             <span className="text-lg">{cfg.emoji}</span>
             <span>{cfg.label}</span>

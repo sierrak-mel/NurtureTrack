@@ -63,7 +63,7 @@ function EditFeedingDialog({ entry, open, onClose }: { entry: FeedingSession; op
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Save</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-purple hover:bg-onesie-purple/90 text-white font-nunito">Save</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -99,7 +99,7 @@ function AddFeedingDialog({ open, onClose }: { open: boolean; onClose: () => voi
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Add Entry</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-purple hover:bg-onesie-purple/90 text-white font-nunito">Add Entry</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -133,7 +133,7 @@ function EditDiaperDialog({ entry, open, onClose }: { entry: DiaperChange; open:
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-teal hover:bg-nurture-teal/90 text-white font-nunito">Save</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-teal hover:bg-onesie-teal/90 text-white font-nunito">Save</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -168,7 +168,7 @@ function AddDiaperDialog({ open, onClose }: { open: boolean; onClose: () => void
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-teal hover:bg-nurture-teal/90 text-white font-nunito">Add Entry</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-teal hover:bg-onesie-teal/90 text-white font-nunito">Add Entry</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -203,7 +203,7 @@ function EditSleepDialog({ entry, open, onClose }: { entry: SleepSession; open: 
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-blue hover:bg-nurture-blue/90 text-white font-nunito">Save</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-blue hover:bg-onesie-blue/90 text-white font-nunito">Save</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -239,7 +239,7 @@ function AddSleepDialog({ open, onClose }: { open: boolean; onClose: () => void 
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-blue hover:bg-nurture-blue/90 text-white font-nunito">Add Entry</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-blue hover:bg-onesie-blue/90 text-white font-nunito">Add Entry</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -281,7 +281,7 @@ function EditPumpingDialog({ entry, open, onClose }: { entry: PumpingSession; op
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-amber hover:bg-nurture-amber/90 text-white font-nunito">Save</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-amber hover:bg-onesie-amber/90 text-white font-nunito">Save</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -323,7 +323,7 @@ function AddPumpingDialog({ open, onClose }: { open: boolean; onClose: () => voi
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-amber hover:bg-nurture-amber/90 text-white font-nunito">Add Entry</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-amber hover:bg-onesie-amber/90 text-white font-nunito">Add Entry</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -359,7 +359,7 @@ function EditBottleDialog({ entry, open, onClose }: { entry: BottleFeed; open: b
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Save</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-purple hover:bg-onesie-purple/90 text-white font-nunito">Save</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -397,7 +397,7 @@ function AddBottleDialog({ open, onClose }: { open: boolean; onClose: () => void
           <label className="text-sm font-nunito text-muted-foreground">Notes</label>
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} />
         </div>
-        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Add Entry</Button></DialogFooter>
+        <DialogFooter><Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-purple hover:bg-onesie-purple/90 text-white font-nunito">Add Entry</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -441,10 +441,10 @@ export default function History() {
           {/* ── Feeding Tab (breast + bottle) ── */}
           <TabsContent value="feeding">
             <div className="flex gap-2 mb-3">
-              <Button onClick={() => setAddFeedingOpen(true)} variant="outline" className="flex-1 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-purple/30 text-nurture-purple">
+              <Button onClick={() => setAddFeedingOpen(true)} variant="outline" className="flex-1 min-h-[48px] rounded-xl font-nunito gap-2 border-onesie-purple/30 text-onesie-purple">
                 <Plus className="w-4 h-4" /> Breast Feed
               </Button>
-              <Button onClick={() => setAddBottleOpen(true)} variant="outline" className="flex-1 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-purple/30 text-nurture-purple">
+              <Button onClick={() => setAddBottleOpen(true)} variant="outline" className="flex-1 min-h-[48px] rounded-xl font-nunito gap-2 border-onesie-purple/30 text-onesie-purple">
                 <Plus className="w-4 h-4" /> Bottle Feed
               </Button>
             </div>
@@ -456,7 +456,7 @@ export default function History() {
                   if (entry.type === 'breast') {
                     const f = entry.data as FeedingSession;
                     return (
-                      <div key={f.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-purple">
+                      <div key={f.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-purple">
                         <div className="flex-1 min-w-0">
                           <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(f.startTime)} 🤱</p>
                           <p className="text-xs text-muted-foreground font-nunito">
@@ -465,7 +465,7 @@ export default function History() {
                           {f.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{f.notes}"</p>}
                         </div>
                         <div className="flex gap-1">
-                          <button onClick={() => setEditFeeding(f)} className="text-muted-foreground hover:text-nurture-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                          <button onClick={() => setEditFeeding(f)} className="text-muted-foreground hover:text-onesie-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
                           <button onClick={() => deleteFeeding(f.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </div>
@@ -473,7 +473,7 @@ export default function History() {
                   } else {
                     const b = entry.data as BottleFeed;
                     return (
-                      <div key={b.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-purple/60">
+                      <div key={b.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-purple/60">
                         <div className="flex-1 min-w-0">
                           <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(b.timestamp)} 🍼</p>
                           <p className="text-xs text-muted-foreground font-nunito">
@@ -482,7 +482,7 @@ export default function History() {
                           {b.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{b.notes}"</p>}
                         </div>
                         <div className="flex gap-1">
-                          <button onClick={() => setEditBottle(b)} className="text-muted-foreground hover:text-nurture-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                          <button onClick={() => setEditBottle(b)} className="text-muted-foreground hover:text-onesie-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
                           <button onClick={() => deleteBottleFeed(b.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </div>
@@ -495,7 +495,7 @@ export default function History() {
 
           {/* ── Pumping Tab ── */}
           <TabsContent value="pumping">
-            <Button onClick={() => setAddPumpingOpen(true)} variant="outline" className="w-full mb-3 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-amber/30 text-nurture-amber">
+            <Button onClick={() => setAddPumpingOpen(true)} variant="outline" className="w-full mb-3 min-h-[48px] rounded-xl font-nunito gap-2 border-onesie-amber/30 text-onesie-amber">
               <Plus className="w-4 h-4" /> Add Past Entry
             </Button>
             {pumpings.filter(p => p.endTime).length === 0 ? (
@@ -503,7 +503,7 @@ export default function History() {
             ) : (
               <div className="space-y-2">
                 {pumpings.filter(p => p.endTime).map(p => (
-                  <div key={p.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-amber">
+                  <div key={p.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-amber">
                     <div className="flex-1 min-w-0">
                       <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(p.startTime)}</p>
                       <p className="text-xs text-muted-foreground font-nunito">
@@ -513,7 +513,7 @@ export default function History() {
                       {p.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{p.notes}"</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditPumping(p)} className="text-muted-foreground hover:text-nurture-amber p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => setEditPumping(p)} className="text-muted-foreground hover:text-onesie-amber p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
                       <button onClick={() => deletePumping(p.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
@@ -524,7 +524,7 @@ export default function History() {
 
           {/* ── Diaper Tab ── */}
           <TabsContent value="diaper">
-            <Button onClick={() => setAddDiaperOpen(true)} variant="outline" className="w-full mb-3 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-teal/30 text-nurture-teal">
+            <Button onClick={() => setAddDiaperOpen(true)} variant="outline" className="w-full mb-3 min-h-[48px] rounded-xl font-nunito gap-2 border-onesie-teal/30 text-onesie-teal">
               <Plus className="w-4 h-4" /> Add Past Entry
             </Button>
             {diapers.length === 0 ? (
@@ -532,14 +532,14 @@ export default function History() {
             ) : (
               <div className="space-y-2">
                 {diapers.map(d => (
-                  <div key={d.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-teal">
+                  <div key={d.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-teal">
                     <div className="flex-1 min-w-0">
                       <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(d.timestamp)} {diaperEmoji[d.type]}</p>
                       <p className="text-xs text-muted-foreground font-nunito capitalize">{d.type}{d.colorNote ? ` · ${d.colorNote}` : ''}</p>
                       {d.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{d.notes}"</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditDiaper(d)} className="text-muted-foreground hover:text-nurture-teal p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => setEditDiaper(d)} className="text-muted-foreground hover:text-onesie-teal p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
                       <button onClick={() => deleteDiaper(d.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
@@ -550,7 +550,7 @@ export default function History() {
 
           {/* ── Sleep Tab ── */}
           <TabsContent value="sleep">
-            <Button onClick={() => setAddSleepOpen(true)} variant="outline" className="w-full mb-3 min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-blue/30 text-nurture-blue">
+            <Button onClick={() => setAddSleepOpen(true)} variant="outline" className="w-full mb-3 min-h-[48px] rounded-xl font-nunito gap-2 border-onesie-blue/30 text-onesie-blue">
               <Plus className="w-4 h-4" /> Add Past Entry
             </Button>
             {sleeps.filter(s => s.endTime).length === 0 ? (
@@ -558,7 +558,7 @@ export default function History() {
             ) : (
               <div className="space-y-2">
                 {sleeps.filter(s => s.endTime).map(s => (
-                  <div key={s.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-blue">
+                  <div key={s.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-blue">
                     <div className="flex-1 min-w-0">
                       <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(s.startTime)}</p>
                       <p className="text-xs text-muted-foreground font-nunito">
@@ -567,7 +567,7 @@ export default function History() {
                       {s.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{s.notes}"</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditSleep(s)} className="text-muted-foreground hover:text-nurture-blue p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => setEditSleep(s)} className="text-muted-foreground hover:text-onesie-blue p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
                       <button onClick={() => deleteSleep(s.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>

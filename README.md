@@ -1,6 +1,6 @@
-# NurtureTrack — Baby Care Tracker
+# Onesie — Baby Care Tracker
 
-NurtureTrack is a simple, calm app designed to help new parents track their baby's daily care — including feedings, diaper changes, sleep, and pumping sessions. It's built to be used quickly with one hand, right from your phone.
+Onesie is a simple, calm app designed to help new parents track their baby's daily care — including feedings, diaper changes, sleep, and pumping sessions. It's built to be used quickly with one hand, right from your phone.
 
 ## Features
 
@@ -23,7 +23,7 @@ NurtureTrack is a simple, calm app designed to help new parents track their baby
 
 ### Sharing with Your Partner or Caregivers
 
-NurtureTrack supports multiple caregivers so everyone stays on the same page:
+Onesie supports multiple caregivers so everyone stays on the same page:
 
 1. Log in to your account
 2. Navigate to your **Profile** settings
@@ -31,15 +31,15 @@ NurtureTrack supports multiple caregivers so everyone stays on the same page:
 4. They will receive an invite to create their own account and will be linked to your baby's profile
 5. All caregivers can log and view entries in real time
 
-### Saving NurtureTrack to Your iPhone Home Screen
+### Saving Onesie to Your iPhone Home Screen
 
-For the best experience, add NurtureTrack to your home screen so it feels like a native app:
+For the best experience, add Onesie to your home screen so it feels like a native app:
 
 1. Open **Safari** on your iPhone
-2. Navigate to your NurtureTrack URL
+2. Navigate to your Onesie URL
 3. Tap the **Share** button (the square with an arrow pointing up)
 4. Scroll down and tap **Add to Home Screen**
-5. Name it "NurtureTrack" (or whatever you'd like) and tap **Add**
+5. Name it "Onesie" (or whatever you'd like) and tap **Add**
 
 The app will appear on your home screen with its own icon, and will open in full-screen mode without the Safari toolbar.
 

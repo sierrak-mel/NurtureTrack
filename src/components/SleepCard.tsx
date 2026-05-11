@@ -17,10 +17,10 @@ export function SleepCard() {
   const totalMins = Math.floor((totalSleep24h % 3600) / 60);
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-nurture-blue">
+    <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-onesie-blue">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-full bg-nurture-blue/10 flex items-center justify-center">
-          <Moon className="w-4 h-4 text-nurture-blue" />
+        <div className="w-8 h-8 rounded-full bg-onesie-blue/10 flex items-center justify-center">
+          <Moon className="w-4 h-4 text-onesie-blue" />
         </div>
         <h2 className="font-quicksand font-bold text-lg text-foreground">Sleep</h2>
       </div>
@@ -28,17 +28,17 @@ export function SleepCard() {
       {activeSleep ? (
         <div className="text-center py-3">
           <div className="flex items-center justify-center gap-2 mb-1">
-            <Moon className="w-5 h-5 text-nurture-blue" />
+            <Moon className="w-5 h-5 text-onesie-blue" />
             <span className="text-sm font-nunito text-muted-foreground">Baby is sleeping</span>
           </div>
-          <p className="font-quicksand text-4xl font-bold text-nurture-blue tabular-nums">
+          <p className="font-quicksand text-4xl font-bold text-onesie-blue tabular-nums">
             {formatTimer(elapsed)}
           </p>
         </div>
       ) : (
         <div className="space-y-1 mb-4">
           <div className="flex items-center gap-2 mb-1">
-            <Sun className="w-4 h-4 text-nurture-pink" />
+            <Sun className="w-4 h-4 text-onesie-pink" />
             <span className="text-sm font-nunito text-muted-foreground">Baby is awake</span>
           </div>
           {lastCompleted ? (
@@ -61,7 +61,7 @@ export function SleepCard() {
 
       <button
         onClick={() => activeSleep ? stopSleep() : startSleep()}
-        className="w-full bg-nurture-blue text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] hover:opacity-90 transition-opacity mt-2"
+        className="w-full bg-onesie-blue text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] hover:opacity-90 transition-opacity mt-2"
       >
         {activeSleep ? 'End Nap' : 'Start Nap'}
       </button>
