@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeState | null>(null);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     try {
-      return (localStorage.getItem('nurture-theme') as ThemeMode) || 'system';
+      return (localStorage.getItem('onesie-theme') as ThemeMode) || 'system';
     } catch { return 'system'; }
   });
 
@@ -20,7 +20,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = (t: ThemeMode) => {
     setThemeState(t);
-    try { localStorage.setItem('nurture-theme', t); } catch {}
+    try { localStorage.setItem('onesie-theme', t); } catch {}
   };
 
   useEffect(() => {

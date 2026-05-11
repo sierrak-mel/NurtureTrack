@@ -34,14 +34,14 @@
 
     --radius: 1rem;
 
-    /* NurtureTrack custom tokens */
-    --nurture-purple: 266 34% 47%;
-    --nurture-pink: 330 50% 62%;
-    --nurture-teal: 163 33% 47%;
-    --nurture-blue: 216 60% 68%;
-    --nurture-cream: 40 33% 98%;
-    --nurture-charcoal: 270 10% 18%;
-    --nurture-amber: 35 90% 55%;
+    /* Onesie custom tokens */
+    --onesie-purple: 266 34% 47%;
+    --onesie-pink: 330 50% 62%;
+    --onesie-teal: 163 33% 47%;
+    --onesie-blue: 216 60% 68%;
+    --onesie-cream: 40 33% 98%;
+    --onesie-charcoal: 270 10% 18%;
+    --onesie-amber: 35 90% 55%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -82,13 +82,13 @@
     --input: 255 18% 18%;
     --ring: 266 40% 55%;
 
-    --nurture-purple: 266 40% 55%;
-    --nurture-pink: 330 45% 60%;
-    --nurture-teal: 163 35% 50%;
-    --nurture-blue: 216 50% 58%;
-    --nurture-cream: 255 18% 5%;
-    --nurture-charcoal: 260 20% 96%;
-    --nurture-amber: 35 85% 52%;
+    --onesie-purple: 266 40% 55%;
+    --onesie-pink: 330 45% 60%;
+    --onesie-teal: 163 35% 50%;
+    --onesie-blue: 216 50% 58%;
+    --onesie-cream: 255 18% 5%;
+    --onesie-charcoal: 260 20% 96%;
+    --onesie-amber: 35 85% 52%;
 
     --sidebar-background: 255 18% 5%;
     --sidebar-foreground: 260 20% 90%;

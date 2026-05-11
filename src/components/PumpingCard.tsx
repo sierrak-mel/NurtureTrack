@@ -37,15 +37,15 @@ export function PumpingCard() {
 
   if (activePumping) {
     return (
-      <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-nurture-amber">
+      <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-onesie-amber">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-full bg-nurture-amber/10 flex items-center justify-center">
-            <Milk className="w-4 h-4 text-nurture-amber" />
+          <div className="w-8 h-8 rounded-full bg-onesie-amber/10 flex items-center justify-center">
+            <Milk className="w-4 h-4 text-onesie-amber" />
           </div>
           <h2 className="font-quicksand font-bold text-lg text-foreground">Pumping</h2>
         </div>
         <div className="text-center py-4">
-          <p className="font-quicksand text-4xl font-bold text-nurture-amber tabular-nums">
+          <p className="font-quicksand text-4xl font-bold text-onesie-amber tabular-nums">
             {formatTimer(elapsed)}
           </p>
           <div className="flex justify-center gap-2 mt-4">
@@ -54,7 +54,7 @@ export function PumpingCard() {
                 key={s}
                 className={`px-4 py-2 rounded-full text-sm font-semibold font-nunito min-h-[40px] transition-colors ${
                   activePumping.side === s
-                    ? 'bg-nurture-amber text-primary-foreground'
+                    ? 'bg-onesie-amber text-primary-foreground'
                     : 'bg-secondary text-secondary-foreground'
                 }`}
               >
@@ -77,7 +77,7 @@ export function PumpingCard() {
         </div>
         <button
           onClick={handleStop}
-          className="w-full bg-nurture-amber text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] mt-3 hover:opacity-90 transition-opacity"
+          className="w-full bg-onesie-amber text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] mt-3 hover:opacity-90 transition-opacity"
         >
           Stop Pumping
         </button>
@@ -86,10 +86,10 @@ export function PumpingCard() {
   }
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-nurture-amber">
+    <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-onesie-amber">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-full bg-nurture-amber/10 flex items-center justify-center">
-          <Milk className="w-4 h-4 text-nurture-amber" />
+        <div className="w-8 h-8 rounded-full bg-onesie-amber/10 flex items-center justify-center">
+          <Milk className="w-4 h-4 text-onesie-amber" />
         </div>
         <h2 className="font-quicksand font-bold text-lg text-foreground">Pumping</h2>
       </div>
@@ -110,8 +110,8 @@ export function PumpingCard() {
         </p>
       )}
       {todayTotal > 0 && (
-        <div className="bg-nurture-amber/10 rounded-xl px-3 py-2 mb-3">
-          <p className="text-sm font-nunito font-semibold text-nurture-amber">
+        <div className="bg-onesie-amber/10 rounded-xl px-3 py-2 mb-3">
+          <p className="text-sm font-nunito font-semibold text-onesie-amber">
             Today's total: {fromOz(todayTotal).toFixed(1)} {unit}
           </p>
         </div>
@@ -123,7 +123,7 @@ export function PumpingCard() {
             onClick={() => setSelectedSide(s)}
             className={`flex-1 px-3 py-2 rounded-full text-sm font-semibold font-nunito min-h-[40px] transition-colors ${
               selectedSide === s
-                ? 'bg-nurture-amber text-primary-foreground'
+                ? 'bg-onesie-amber text-primary-foreground'
                 : 'bg-secondary text-secondary-foreground'
             }`}
           >
@@ -133,7 +133,7 @@ export function PumpingCard() {
       </div>
       <button
         onClick={handleStart}
-        className="w-full bg-nurture-amber text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] hover:opacity-90 transition-opacity"
+        className="w-full bg-onesie-amber text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] hover:opacity-90 transition-opacity"
       >
         Start Pumping
       </button>

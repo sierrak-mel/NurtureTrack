@@ -11,10 +11,10 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash.includes('type=recovery')) {
-      setError('Invalid or expired reset link.');
-    }
+    const raw = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+    const params = new URLSearchParams(raw);
+    const errDesc = params.get('error_description');
+    if (errDesc) setError(errDesc.replace(/\+/g, ' '));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,7 +52,7 @@ export default function ResetPassword() {
             />
           </div>
           {error && <p className="text-sm text-destructive font-nunito">{error}</p>}
-          {message && <p className="text-sm text-nurture-teal font-nunito">{message}</p>}
+          {message && <p className="text-sm text-onesie-teal font-nunito">{message}</p>}
           <button
             type="submit"
             disabled={loading}

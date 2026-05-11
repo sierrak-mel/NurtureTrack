@@ -44,15 +44,15 @@ export function FeedingCard() {
 
   if (activeFeeding) {
     return (
-      <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-nurture-purple">
+      <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-onesie-purple">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-full bg-nurture-purple/10 flex items-center justify-center">
-            <Baby className="w-4 h-4 text-nurture-purple" />
+          <div className="w-8 h-8 rounded-full bg-onesie-purple/10 flex items-center justify-center">
+            <Baby className="w-4 h-4 text-onesie-purple" />
           </div>
           <h2 className="font-quicksand font-bold text-lg text-foreground">Feeding</h2>
         </div>
         <div className="text-center py-4">
-          <p className="font-quicksand text-4xl font-bold text-nurture-purple tabular-nums">
+          <p className="font-quicksand text-4xl font-bold text-onesie-purple tabular-nums">
             {formatTimer(elapsed)}
           </p>
           <div className="flex justify-center gap-2 mt-4">
@@ -61,7 +61,7 @@ export function FeedingCard() {
                 key={s}
                 className={`px-4 py-2 rounded-full text-sm font-semibold font-nunito min-h-[40px] transition-colors ${
                   activeFeeding.side === s
-                    ? 'bg-nurture-purple text-primary-foreground'
+                    ? 'bg-onesie-purple text-primary-foreground'
                     : 'bg-secondary text-secondary-foreground'
                 }`}
               >
@@ -72,7 +72,7 @@ export function FeedingCard() {
         </div>
         <button
           onClick={() => stopFeeding()}
-          className="w-full bg-nurture-purple text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] mt-3 hover:opacity-90 transition-opacity"
+          className="w-full bg-onesie-purple text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] mt-3 hover:opacity-90 transition-opacity"
         >
           Stop Feed
         </button>
@@ -81,10 +81,10 @@ export function FeedingCard() {
   }
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-nurture-purple">
+    <div className="bg-card rounded-2xl p-5 shadow-sm border-l-4 border-onesie-purple">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-full bg-nurture-purple/10 flex items-center justify-center">
-          <Baby className="w-4 h-4 text-nurture-purple" />
+        <div className="w-8 h-8 rounded-full bg-onesie-purple/10 flex items-center justify-center">
+          <Baby className="w-4 h-4 text-onesie-purple" />
         </div>
         <h2 className="font-quicksand font-bold text-lg text-foreground">Feeding</h2>
         {todayFeedCount > 0 && (
@@ -109,7 +109,7 @@ export function FeedingCard() {
       {/* Which Side Next Indicator */}
       <div className="mb-3">
         {lastCompleted ? (
-          <div className="bg-nurture-purple text-primary-foreground rounded-full px-4 py-1.5 text-sm font-semibold font-nunito text-center">
+          <div className="bg-onesie-purple text-primary-foreground rounded-full px-4 py-1.5 text-sm font-semibold font-nunito text-center">
             Next: {nextSideLabel}
           </div>
         ) : (
@@ -126,7 +126,7 @@ export function FeedingCard() {
             onClick={() => setSelectedSide(s)}
             className={`flex-1 px-3 py-2 rounded-full text-sm font-semibold font-nunito min-h-[40px] transition-colors ${
               effectiveSide === s
-                ? 'bg-nurture-purple text-primary-foreground'
+                ? 'bg-onesie-purple text-primary-foreground'
                 : 'bg-secondary text-secondary-foreground'
             }`}
           >
@@ -136,7 +136,7 @@ export function FeedingCard() {
       </div>
       <button
         onClick={handleStart}
-        className="w-full bg-nurture-purple text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] hover:opacity-90 transition-opacity"
+        className="w-full bg-onesie-purple text-primary-foreground rounded-xl py-3 font-semibold font-nunito text-base min-h-[48px] hover:opacity-90 transition-opacity"
       >
         Start Feeding
       </button>
@@ -195,7 +195,7 @@ function BottleFeedDialog({ open, onClose }: { open: boolean; onClose: () => voi
                   onClick={() => setContentType(ct.value)}
                   className={`flex-1 px-2 py-2 rounded-full text-xs font-semibold font-nunito min-h-[40px] transition-colors ${
                     contentType === ct.value
-                      ? 'bg-nurture-purple text-primary-foreground'
+                      ? 'bg-onesie-purple text-primary-foreground'
                       : 'bg-secondary text-secondary-foreground'
                   }`}
                 >
@@ -214,7 +214,7 @@ function BottleFeedDialog({ open, onClose }: { open: boolean; onClose: () => voi
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">Save</Button>
+          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-purple hover:bg-onesie-purple/90 text-white font-nunito">Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -81,11 +81,11 @@ function FeedingCharts({ feedings, days }: { feedings: FeedingSession[]; days: 7
       <div className="grid grid-cols-2 gap-3">
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground font-nunito">Avg Duration</p>
-          <p className="text-2xl font-quicksand font-bold text-nurture-purple">{avgDurMin ?? '—'}<span className="text-sm font-normal"> min</span></p>
+          <p className="text-2xl font-quicksand font-bold text-onesie-purple">{avgDurMin ?? '—'}<span className="text-sm font-normal"> min</span></p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground font-nunito">Avg Gap</p>
-          <p className="text-2xl font-quicksand font-bold text-nurture-purple">{avgGapHrs ?? '—'}<span className="text-sm font-normal"> hrs</span></p>
+          <p className="text-2xl font-quicksand font-bold text-onesie-purple">{avgGapHrs ?? '—'}<span className="text-sm font-normal"> hrs</span></p>
         </Card>
       </div>
 
@@ -143,7 +143,7 @@ function DiaperCharts({ diapers, days }: { diapers: DiaperChange[]; days: 7 | 30
     <div className="space-y-6">
       <Card className="p-4 text-center">
         <p className="text-xs text-muted-foreground font-nunito">Daily avg changes</p>
-        <p className="text-2xl font-quicksand font-bold text-nurture-teal">{avgPerDay}</p>
+        <p className="text-2xl font-quicksand font-bold text-onesie-teal">{avgPerDay}</p>
       </Card>
 
       <Card className="p-4">
@@ -190,11 +190,11 @@ function SleepCharts({ sleeps, days }: { sleeps: SleepSession[]; days: 7 | 30 })
       <div className="grid grid-cols-2 gap-3">
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground font-nunito">Avg Nap</p>
-          <p className="text-2xl font-quicksand font-bold text-nurture-blue">{avgNapMin ?? '—'}<span className="text-sm font-normal"> min</span></p>
+          <p className="text-2xl font-quicksand font-bold text-onesie-blue">{avgNapMin ?? '—'}<span className="text-sm font-normal"> min</span></p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground font-nunito">Best Stretch</p>
-          <p className="text-2xl font-quicksand font-bold text-nurture-blue">{perDay.length ? Math.max(...perDay.map(d => d.longest)).toFixed(1) : '—'}<span className="text-sm font-normal"> hrs</span></p>
+          <p className="text-2xl font-quicksand font-bold text-onesie-blue">{perDay.length ? Math.max(...perDay.map(d => d.longest)).toFixed(1) : '—'}<span className="text-sm font-normal"> hrs</span></p>
         </Card>
       </div>
 

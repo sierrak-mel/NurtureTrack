@@ -15,7 +15,7 @@ const Index = () => {
       <div className="max-w-lg mx-auto px-4 pt-6">
         <header className="mb-6">
           <h1 className="text-2xl font-quicksand font-bold text-foreground">
-            {profile ? `Hi there 👋` : 'NurtureTrack'}
+            {profile ? `Hi there 👋` : 'Onesie'}
           </h1>
           {profile && (
             <p className="text-sm text-muted-foreground font-nunito mt-0.5">

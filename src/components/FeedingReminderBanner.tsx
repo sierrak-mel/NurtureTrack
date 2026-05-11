@@ -5,7 +5,7 @@ import { Bell } from 'lucide-react';
 
 function getSettings(): FeedingReminderSettings | null {
   try {
-    const stored = localStorage.getItem('nurture-feeding-reminder');
+    const stored = localStorage.getItem('onesie-feeding-reminder');
     if (!stored) return null;
     const s = JSON.parse(stored);
     return s.enabled ? s : null;
@@ -67,8 +67,8 @@ export function FeedingReminderBanner() {
   if (!show) return null;
 
   return (
-    <div className="bg-nurture-amber/15 border border-nurture-amber/30 rounded-xl mx-4 mt-2 p-3 flex items-start gap-3">
-      <Bell className="w-5 h-5 text-nurture-amber shrink-0 mt-0.5" />
+    <div className="bg-onesie-amber/15 border border-onesie-amber/30 rounded-xl mx-4 mt-2 p-3 flex items-start gap-3">
+      <Bell className="w-5 h-5 text-onesie-amber shrink-0 mt-0.5" />
       <div>
         <p className="text-sm font-nunito font-semibold text-foreground">Feeding Reminder</p>
         <p className="text-xs text-muted-foreground font-nunito">{msg}</p>

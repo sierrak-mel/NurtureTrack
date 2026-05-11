@@ -51,14 +51,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        nurture: {
-          purple: "hsl(var(--nurture-purple))",
-          pink: "hsl(var(--nurture-pink))",
-          teal: "hsl(var(--nurture-teal))",
-          blue: "hsl(var(--nurture-blue))",
-          cream: "hsl(var(--nurture-cream))",
-          charcoal: "hsl(var(--nurture-charcoal))",
-          amber: "hsl(var(--nurture-amber))",
+        onesie: {
+          purple: "hsl(var(--onesie-purple))",
+          pink: "hsl(var(--onesie-pink))",
+          teal: "hsl(var(--onesie-teal))",
+          blue: "hsl(var(--onesie-blue))",
+          cream: "hsl(var(--onesie-cream))",
+          charcoal: "hsl(var(--onesie-charcoal))",
+          amber: "hsl(var(--onesie-amber))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

@@ -106,16 +106,16 @@ export default function GrowthPage() {
         {/* Current stats */}
         <div className="grid grid-cols-2 gap-3">
           <Card className="p-4 text-center">
-            <TrendingUp className="w-5 h-5 text-nurture-purple mx-auto mb-1" />
+            <TrendingUp className="w-5 h-5 text-onesie-purple mx-auto mb-1" />
             <p className="text-xs text-muted-foreground font-nunito">Current Weight</p>
-            <p className="text-lg font-quicksand font-bold text-nurture-purple">
+            <p className="text-lg font-quicksand font-bold text-onesie-purple">
               {latestWeight ? (isMetric ? `${ozToKg(latestWeight.weightOz)} kg` : ozToLbOz(latestWeight.weightOz)) : '—'}
             </p>
           </Card>
           <Card className="p-4 text-center">
-            <Ruler className="w-5 h-5 text-nurture-teal mx-auto mb-1" />
+            <Ruler className="w-5 h-5 text-onesie-teal mx-auto mb-1" />
             <p className="text-xs text-muted-foreground font-nunito">Current Length</p>
-            <p className="text-lg font-quicksand font-bold text-nurture-teal">
+            <p className="text-lg font-quicksand font-bold text-onesie-teal">
               {latestHeight ? (isMetric ? `${inchesToCm(latestHeight.heightInches)} cm` : `${latestHeight.heightInches}" `) : '—'}
             </p>
           </Card>
@@ -129,7 +129,7 @@ export default function GrowthPage() {
 
           {/* Weight Tab */}
           <TabsContent value="weight" className="space-y-4 mt-4">
-            <Button onClick={() => setAddWeightOpen(true)} variant="outline" className="w-full min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-purple/30 text-nurture-purple">
+            <Button onClick={() => setAddWeightOpen(true)} variant="outline" className="w-full min-h-[48px] rounded-xl font-nunito gap-2 border-onesie-purple/30 text-onesie-purple">
               <Plus className="w-4 h-4" /> Add Weight Entry
             </Button>
 
@@ -153,7 +153,7 @@ export default function GrowthPage() {
             ) : (
               <div className="space-y-2">
                 {[...weightLogs].reverse().map(w => (
-                  <div key={w.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-purple">
+                  <div key={w.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-purple">
                     <div className="flex-1 min-w-0">
                       <p className="font-nunito font-semibold text-sm text-foreground">{format(new Date(w.date + 'T00:00:00'), 'MMM d, yyyy')}</p>
                       <p className="text-xs text-muted-foreground font-nunito">
@@ -162,7 +162,7 @@ export default function GrowthPage() {
                       {w.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{w.notes}"</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditWeight(w)} className="text-muted-foreground hover:text-nurture-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => setEditWeight(w)} className="text-muted-foreground hover:text-onesie-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
                       <button onClick={() => deleteWeight(w.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
@@ -173,7 +173,7 @@ export default function GrowthPage() {
 
           {/* Height Tab */}
           <TabsContent value="height" className="space-y-4 mt-4">
-            <Button onClick={() => setAddHeightOpen(true)} variant="outline" className="w-full min-h-[48px] rounded-xl font-nunito gap-2 border-nurture-teal/30 text-nurture-teal">
+            <Button onClick={() => setAddHeightOpen(true)} variant="outline" className="w-full min-h-[48px] rounded-xl font-nunito gap-2 border-onesie-teal/30 text-onesie-teal">
               <Plus className="w-4 h-4" /> Add Height Entry
             </Button>
 
@@ -197,7 +197,7 @@ export default function GrowthPage() {
             ) : (
               <div className="space-y-2">
                 {[...heightLogs].reverse().map(h => (
-                  <div key={h.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-nurture-teal">
+                  <div key={h.id} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-teal">
                     <div className="flex-1 min-w-0">
                       <p className="font-nunito font-semibold text-sm text-foreground">{format(new Date(h.date + 'T00:00:00'), 'MMM d, yyyy')}</p>
                       <p className="text-xs text-muted-foreground font-nunito">
@@ -206,7 +206,7 @@ export default function GrowthPage() {
                       {h.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{h.notes}"</p>}
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditHeight(h)} className="text-muted-foreground hover:text-nurture-teal p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => setEditHeight(h)} className="text-muted-foreground hover:text-onesie-teal p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
                       <button onClick={() => deleteHeight(h.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </div>
@@ -259,7 +259,7 @@ function WeightDialog({ open, onClose, onSave, initial, isMetric }: {
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="e.g. pediatrician visit" />
         </div>
         <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-purple hover:bg-nurture-purple/90 text-white font-nunito">
+          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-purple hover:bg-onesie-purple/90 text-white font-nunito">
             {initial ? 'Save' : 'Add Entry'}
           </Button>
         </DialogFooter>
@@ -301,7 +301,7 @@ function HeightDialog({ open, onClose, onSave, initial, isMetric }: {
           <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="e.g. pediatrician visit" />
         </div>
         <DialogFooter>
-          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-nurture-teal hover:bg-nurture-teal/90 text-white font-nunito">
+          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-teal hover:bg-onesie-teal/90 text-white font-nunito">
             {initial ? 'Save' : 'Add Entry'}
           </Button>
         </DialogFooter>
