@@ -31,7 +31,7 @@ Onesie supports multiple caregivers so everyone stays on the same page:
 4. They will receive an invite to create their own account and will be linked to your baby's profile
 5. All caregivers can log and view entries in real time
 
-### Saving NurtureTrack to Your iPhone Home Screen
+### Saving Onesie to Your iPhone Home Screen
 
 For the best experience, add Onesie to your home screen so it feels like a native app:
 
@@ -39,7 +39,7 @@ For the best experience, add Onesie to your home screen so it feels like a nativ
 2. Navigate to your Onesie URL
 3. Tap the **Share** button (the square with an arrow pointing up)
 4. Scroll down and tap **Add to Home Screen**
-5. Name it "NurtureTrack" (or whatever you'd like) and tap **Add**
+5. Name it "Onesie" (or whatever you'd like) and tap **Add**
 
 The app will appear on your home screen with its own icon, and will open in full-screen mode without the Safari toolbar.
 
