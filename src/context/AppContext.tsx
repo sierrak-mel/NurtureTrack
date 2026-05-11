@@ -95,19 +95,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const { data: cgRows } = await supabase.from('caregivers').select('*').eq('user_id', user.id).limit(1);
     let cg = cgRows?.[0] || null;
     if (!cg) {
-      // Account exists but DB records were never created (e.g. signup RLS race condition).
-      // Generate family ID client-side to avoid needing a SELECT after INSERT (which RLS blocks).
-      const familyId = crypto.randomUUID();
-      const { error: familyError } = await supabase.from('families').insert({ id: familyId });
-      if (!familyError) {
-        const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Caregiver';
-        await supabase.from('caregivers').insert({
-          family_id: familyId, user_id: user.id,
-          display_name: displayName, role: 'owner' as const,
-        });
-        await supabase.from('baby_profiles').insert({
-          family_id: familyId, name: 'Baby', default_start_side: 'left' as const,
-        });
+      const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Caregiver';
+      const { error: rpcError } = await supabase.rpc('create_user_family', {
+        p_display_name: displayName,
+        p_baby_name: 'Baby',
+      });
+      if (!rpcError) {
         const { data: newCg } = await supabase.from('caregivers').select('*').eq('user_id', user.id).maybeSingle();
         cg = newCg;
       }

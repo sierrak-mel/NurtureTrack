@@ -76,24 +76,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const parsed = result as any;
         if (!parsed.success) return { error: { message: parsed.error } };
       } else {
-        // Create new family — generate ID client-side to avoid SELECT-after-INSERT RLS issue
-        const familyId = crypto.randomUUID();
-        const { error: familyError } = await supabase.from('families').insert({ id: familyId });
-
-        if (!familyError) {
-          await supabase.from('caregivers').insert({
-            family_id: familyId,
-            user_id: data.user.id,
-            display_name: displayName,
-            role: 'owner' as const,
-          });
-
-          await supabase.from('baby_profiles').insert({
-            family_id: familyId,
-            name: 'Baby',
-            default_start_side: 'left' as const,
-          });
-        }
+        const { error: rpcError } = await supabase.rpc('create_user_family', {
+          p_display_name: displayName,
+          p_baby_name: 'Baby',
+        });
+        if (rpcError) return { error: rpcError };
       }
     }
     return { error: null };
