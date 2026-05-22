@@ -56,7 +56,7 @@ export default function SettingsPage() {
       .from('family_invites').select('invite_code')
       .eq('family_id', familyId!).eq('status', 'pending')
       .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false }).limit(1).single();
+      .order('created_at', { ascending: false }).limit(1).maybeSingle();
     if (data) setInviteCode(data.invite_code);
   };
 
