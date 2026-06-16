@@ -4,6 +4,7 @@ import { SleepCard } from '@/components/SleepCard';
 import { PumpingCard } from '@/components/PumpingCard';
 import { ActiveSessionBanner } from '@/components/ActiveSessionBanner';
 import { FeedingReminderBanner } from '@/components/FeedingReminderBanner';
+import { InstallPromptDialog } from '@/components/InstallPromptDialog';
 import { useApp } from '@/context/AppContext';
 
 const Index = () => {
@@ -11,6 +12,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <InstallPromptDialog />
       <ActiveSessionBanner />
       <div className="max-w-lg mx-auto px-4 pt-6">
         <header className="mb-6">

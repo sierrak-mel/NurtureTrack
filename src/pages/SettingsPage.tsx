@@ -4,8 +4,10 @@ import { useTheme } from '@/context/ThemeContext';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Side, UnitPreference, ThemeMode, FeedingReminderSettings } from '@/types';
-import { LogOut, Link2, Trash2, Crown, User, Copy, Check, RefreshCw, Sun, Moon, Monitor } from 'lucide-react';
+import { LogOut, Link2, Trash2, Crown, User, Copy, Check, RefreshCw, Sun, Moon, Monitor, Smartphone } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { InstallInstructions } from '@/components/InstallInstructions';
+import { detectPlatform, isStandalone } from '@/lib/platform';
 
 const DEFAULT_REMINDER: FeedingReminderSettings = {
   enabled: false,
@@ -25,6 +27,10 @@ export default function SettingsPage() {
   const [unitPref, setUnitPref] = useState<UnitPreference>(profile?.unitPreference || 'oz');
   const [switchNursing, setSwitchNursing] = useState(profile?.switchNursingEnabled || false);
   const [saved, setSaved] = useState(false);
+
+  // Detect platform + whether the app is already installed to the home screen
+  const [platform] = useState(detectPlatform);
+  const [isInstalled] = useState(isStandalone);
 
   const [inviteCode, setInviteCode] = useState('');
   const [inviteLoading, setInviteLoading] = useState(false);
@@ -153,6 +159,26 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Add to Home Screen */}
+        <div className="bg-card rounded-2xl p-5 shadow-sm space-y-3">
+          <div className="flex items-center gap-2">
+            <Smartphone className="w-5 h-5 text-primary" />
+            <h2 className="font-quicksand font-bold text-lg text-foreground">Add to Home Screen</h2>
+          </div>
+
+          {isInstalled ? (
+            <p className="text-sm text-muted-foreground font-nunito flex items-center gap-2">
+              <Check className="w-4 h-4 text-onesie-teal shrink-0" /> You're all set — Onesie is installed on this device's home screen.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground font-nunito">
+              Install Onesie on your phone home screen — no address bar, just one tap.
+            </p>
+          )}
+
+          <InstallInstructions platform={platform} />
         </div>
 
         {/* Baby Profile */}
