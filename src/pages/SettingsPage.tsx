@@ -23,6 +23,7 @@ export default function SettingsPage() {
   const [dob, setDob] = useState(profile?.dateOfBirth || '');
   const [side, setSide] = useState<Side>(profile?.defaultStartSide || 'left');
   const [unitPref, setUnitPref] = useState<UnitPreference>(profile?.unitPreference || 'oz');
+  const [switchNursing, setSwitchNursing] = useState(profile?.switchNursingEnabled || false);
   const [saved, setSaved] = useState(false);
 
   const [inviteCode, setInviteCode] = useState('');
@@ -79,7 +80,7 @@ export default function SettingsPage() {
   };
 
   const handleSave = () => {
-    setProfile({ name, dateOfBirth: dob, defaultStartSide: side, unitPreference: unitPref });
+    setProfile({ name, dateOfBirth: dob, defaultStartSide: side, unitPreference: unitPref, switchNursingEnabled: switchNursing });
     setSaved(true); setTimeout(() => setSaved(false), 2000);
   };
 
@@ -174,6 +175,15 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
+          </div>
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <label className="text-sm font-nunito font-semibold text-foreground">Switch Nursing</label>
+              <Switch checked={switchNursing} onCheckedChange={setSwitchNursing} />
+            </div>
+            <p className="text-xs text-muted-foreground font-nunito mt-1">
+              When your last two feeds were on opposite sides within 30 minutes (a "top-off"), the next recommendation starts on the side you topped off — instead of strictly alternating.
+            </p>
           </div>
           <div>
             <label className="text-sm font-nunito font-semibold text-foreground mb-1 block">Volume Units</label>

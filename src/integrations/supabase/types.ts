@@ -22,6 +22,7 @@ export type Database = {
           family_id: string
           id: string
           name: string
+          switch_nursing_enabled: boolean
           unit_preference: string
           updated_at: string
         }
@@ -32,6 +33,7 @@ export type Database = {
           family_id: string
           id?: string
           name: string
+          switch_nursing_enabled?: boolean
           unit_preference?: string
           updated_at?: string
         }
@@ -42,6 +44,7 @@ export type Database = {
           family_id?: string
           id?: string
           name?: string
+          switch_nursing_enabled?: boolean
           unit_preference?: string
           updated_at?: string
         }

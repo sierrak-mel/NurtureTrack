@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { useApp } from '@/context/AppContext';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { FeedingSession, DiaperChange, SleepSession } from '@/types';
+import type { FeedingSession, DiaperChange, SleepSession, BottleFeed } from '@/types';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -19,6 +19,16 @@ const TEAL = 'hsl(163,33%,47%)';
 const BLUE = 'hsl(216,60%,68%)';
 const PINK = 'hsl(330,50%,62%)';
 const TEAL_LIGHT = 'hsl(163,33%,62%)';
+
+// Diaper dot colors — distinguish pee vs poop on the timeline
+const DIAPER_PEE = 'hsl(45,90%,52%)';   // yellow
+const DIAPER_POOP = 'hsl(28,45%,40%)';  // brown
+const diaperDotStyle = (type: DiaperChange['type']): CSSProperties => {
+  if (type === 'pee') return { backgroundColor: DIAPER_PEE };
+  if (type === 'poop') return { backgroundColor: DIAPER_POOP };
+  // both → split yellow / brown
+  return { backgroundImage: `linear-gradient(135deg, ${DIAPER_PEE} 0%, ${DIAPER_PEE} 50%, ${DIAPER_POOP} 50%, ${DIAPER_POOP} 100%)` };
+};
 
 function dayLabel(d: Date) { return format(d, 'EEE'); }
 function shortDate(d: Date) { return format(d, 'MMM d'); }
@@ -289,7 +299,7 @@ function WeeklyTimeline({ feedings, diapers, sleeps }: { feedings: FeedingSessio
                   {dayDiapers.map(d => {
                     const t = new Date(d.timestamp);
                     const topPx = (t.getHours() + t.getMinutes() / 60) * HOUR_H;
-                    return <div key={d.id} className="absolute left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-card" style={{ top: topPx - 4, backgroundColor: TEAL }} title={`Diaper ${d.type} ${format(t, 'HH:mm')}`} />;
+                    return <div key={d.id} className="absolute left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-card" style={{ top: topPx - 4, ...diaperDotStyle(d.type) }} title={`Diaper ${d.type} ${format(t, 'HH:mm')}`} />;
                   })}
                 </div>
               </div>
@@ -299,10 +309,12 @@ function WeeklyTimeline({ feedings, diapers, sleeps }: { feedings: FeedingSessio
       </div>
 
       {/* legend */}
-      <div className="flex justify-center gap-4 text-[10px] font-nunito text-muted-foreground">
+      <div className="flex justify-center flex-wrap gap-x-4 gap-y-1 text-[10px] font-nunito text-muted-foreground">
         <span className="flex items-center gap-1"><span className="w-3 h-2 rounded-sm inline-block" style={{ backgroundColor: PURPLE }} /> Feed</span>
-        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: TEAL }} /> Diaper</span>
         <span className="flex items-center gap-1"><span className="w-3 h-2 rounded-sm inline-block" style={{ backgroundColor: BLUE }} /> Sleep</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: DIAPER_PEE }} /> Pee</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: DIAPER_POOP }} /> Poop</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full inline-block" style={diaperDotStyle('both')} /> Both</span>
       </div>
     </div>
   );
@@ -310,8 +322,61 @@ function WeeklyTimeline({ feedings, diapers, sleeps }: { feedings: FeedingSessio
 
 /* ── Main Page ───────────────────────────────────────────────────── */
 
+function SummaryStats({ feedings, bottleFeeds, diapers, sleeps }: { feedings: FeedingSession[]; bottleFeeds: BottleFeed[]; diapers: DiaperChange[]; sleeps: SleepSession[] }) {
+  const now = new Date();
+  const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const weekInterval = { start: startOfDay(subDays(now, 6)), end: endOfDay(now) };
+
+  const stats = useMemo(() => {
+    // Last 24 hours (rolling)
+    const feeds24 = feedings.filter(f => f.endTime && new Date(f.startTime) >= dayAgo).length
+      + bottleFeeds.filter(b => new Date(b.timestamp) >= dayAgo).length;
+    const diapers24 = diapers.filter(d => new Date(d.timestamp) >= dayAgo).length;
+    const sleepSec24 = sleeps.filter(s => s.endTime && new Date(s.startTime) >= dayAgo).reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+
+    // 7-day daily averages
+    const feedsWeek = feedings.filter(f => f.endTime && inRange(f.startTime, weekInterval.start, weekInterval.end)).length
+      + bottleFeeds.filter(b => inRange(b.timestamp, weekInterval.start, weekInterval.end)).length;
+    const diapersWeek = diapers.filter(d => inRange(d.timestamp, weekInterval.start, weekInterval.end)).length;
+    const sleepSecWeek = sleeps.filter(s => s.endTime && inRange(s.startTime, weekInterval.start, weekInterval.end)).reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+
+    return {
+      feeds24, diapers24, sleepHrs24: (sleepSec24 / 3600),
+      feedsAvg: feedsWeek / 7, diapersAvg: diapersWeek / 7, sleepHrsAvg: sleepSecWeek / 3600 / 7,
+    };
+  }, [feedings, bottleFeeds, diapers, sleeps]);
+
+  const StatCell = ({ label, value, color }: { label: string; value: string; color: string }) => (
+    <div className="flex-1 text-center">
+      <p className={`text-xl font-quicksand font-bold ${color}`}>{value}</p>
+      <p className="text-[10px] text-muted-foreground font-nunito">{label}</p>
+    </div>
+  );
+
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <Card className="p-4">
+        <p className="text-xs font-nunito font-semibold text-foreground mb-3">Last 24 hours</p>
+        <div className="flex gap-1">
+          <StatCell label="Feeds" value={`${stats.feeds24}`} color="text-onesie-purple" />
+          <StatCell label="Diapers" value={`${stats.diapers24}`} color="text-onesie-teal" />
+          <StatCell label="Sleep" value={`${stats.sleepHrs24.toFixed(1)}h`} color="text-onesie-blue" />
+        </div>
+      </Card>
+      <Card className="p-4">
+        <p className="text-xs font-nunito font-semibold text-foreground mb-3">7-day daily avg</p>
+        <div className="flex gap-1">
+          <StatCell label="Feeds" value={stats.feedsAvg.toFixed(1)} color="text-onesie-purple" />
+          <StatCell label="Diapers" value={stats.diapersAvg.toFixed(1)} color="text-onesie-teal" />
+          <StatCell label="Sleep" value={`${stats.sleepHrsAvg.toFixed(1)}h`} color="text-onesie-blue" />
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export default function Analytics() {
-  const { feedings, diapers, sleeps } = useApp();
+  const { feedings, bottleFeeds, diapers, sleeps } = useApp();
   const [days, setDays] = useState<7 | 30>(7);
   const navigate = useNavigate();
 
@@ -324,6 +389,9 @@ export default function Analytics() {
             📈 Growth
           </Button>
         </div>
+
+        {/* At-a-glance summary */}
+        <SummaryStats feedings={feedings} bottleFeeds={bottleFeeds} diapers={diapers} sleeps={sleeps} />
 
         {/* Weekly Timeline */}
         <Card className="p-4">

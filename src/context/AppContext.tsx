@@ -63,7 +63,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [caregiver, setCaregiver] = useState<Caregiver | null>(null);
   const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
-  const [babyProfile, setBabyProfile] = useState<{ id: string; name: string; date_of_birth: string | null; default_start_side: Side; family_id: string; unit_preference: UnitPreference } | null>(null);
+  const [babyProfile, setBabyProfile] = useState<{ id: string; name: string; date_of_birth: string | null; default_start_side: Side; family_id: string; unit_preference: UnitPreference; switch_nursing_enabled: boolean } | null>(null);
   const [feedings, setFeedings] = useState<FeedingSession[]>([]);
   const [diapers, setDiapers] = useState<DiaperChange[]>([]);
   const [sleeps, setSleeps] = useState<SleepSession[]>([]);
@@ -78,6 +78,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dateOfBirth: babyProfile.date_of_birth || '',
     defaultStartSide: babyProfile.default_start_side,
     unitPreference: babyProfile.unit_preference || 'oz',
+    switchNursingEnabled: babyProfile.switch_nursing_enabled || false,
   } : null;
 
   useEffect(() => {
@@ -111,7 +112,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setCaregivers((allCgs || []) as Caregiver[]);
     const { data: bp } = await supabase.from('baby_profiles').select('*').eq('family_id', cg.family_id).maybeSingle();
     if (bp) {
-      setBabyProfile({ id: bp.id, name: bp.name, date_of_birth: bp.date_of_birth, default_start_side: bp.default_start_side as Side, family_id: bp.family_id, unit_preference: (bp as any).unit_preference || 'oz' });
+      setBabyProfile({ id: bp.id, name: bp.name, date_of_birth: bp.date_of_birth, default_start_side: bp.default_start_side as Side, family_id: bp.family_id, unit_preference: (bp as any).unit_preference || 'oz', switch_nursing_enabled: (bp as any).switch_nursing_enabled || false });
       await loadTrackerData(bp.id);
     }
     setLoading(false);
@@ -158,8 +159,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       name: p.name, date_of_birth: p.dateOfBirth || null,
       default_start_side: p.defaultStartSide as any,
       unit_preference: p.unitPreference,
+      switch_nursing_enabled: p.switchNursingEnabled,
     } as any).eq('id', babyProfileId);
-    setBabyProfile(prev => prev ? { ...prev, name: p.name, date_of_birth: p.dateOfBirth, default_start_side: p.defaultStartSide, unit_preference: p.unitPreference } : prev);
+    setBabyProfile(prev => prev ? { ...prev, name: p.name, date_of_birth: p.dateOfBirth, default_start_side: p.defaultStartSide, unit_preference: p.unitPreference, switch_nursing_enabled: p.switchNursingEnabled } : prev);
   }, [babyProfileId]);
 
   // ── Feeding CRUD ──

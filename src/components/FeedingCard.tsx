@@ -1,12 +1,13 @@
 import { useApp } from '@/context/AppContext';
 import { useTimer, formatTimer, formatTimeAgo } from '@/hooks/useTimer';
-import { Baby, Milk } from 'lucide-react';
+import { Baby, Milk, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { Side, ContentType } from '@/types';
+import { computeNextSide } from '@/lib/feeding';
 import { format } from 'date-fns';
 
 function toLocalDatetime(iso: string) {
@@ -17,23 +18,27 @@ function fromLocalDatetime(local: string) {
 }
 
 export function FeedingCard() {
-  const { feedings, activeFeeding, startFeeding, stopFeeding, profile, logBottleFeed, bottleFeeds } = useApp();
+  const { feedings, activeFeeding, startFeeding, stopFeeding, profile, bottleFeeds } = useApp();
   const elapsed = useTimer(activeFeeding?.startTime || null);
-  const [selectedSide, setSelectedSide] = useState<Side>('left');
+  // null = follow the recommendation; a value = user manually overrode it
+  const [manualSide, setManualSide] = useState<Side | null>(null);
   const [bottleOpen, setBottleOpen] = useState(false);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
 
   const lastCompleted = feedings.find(f => f.endTime);
-  const nextSide: Side = lastCompleted
-    ? (lastCompleted.side === 'left' ? 'right' : lastCompleted.side === 'right' ? 'left' : 'left')
-    : (profile?.defaultStartSide || 'left');
+  const nextSide: Side = computeNextSide(feedings, {
+    defaultStartSide: profile?.defaultStartSide || 'left',
+    switchNursingEnabled: profile?.switchNursingEnabled || false,
+  });
 
   const nextSideLabel = nextSide === 'left' ? 'Left Breast' : 'Right Breast';
 
-  // Auto-select next side
-  const effectiveSide = selectedSide || nextSide;
+  // The recommended side is auto-selected unless the user taps another option.
+  const effectiveSide = manualSide ?? nextSide;
 
   const handleStart = () => {
     startFeeding(effectiveSide);
+    setManualSide(null); // resume following the recommendation next time
   };
 
   // Today's feed count (breastfeeding + bottle)
@@ -123,7 +128,7 @@ export function FeedingCard() {
         {(['left', 'right', 'both'] as Side[]).map(s => (
           <button
             key={s}
-            onClick={() => setSelectedSide(s)}
+            onClick={() => setManualSide(s)}
             className={`flex-1 px-3 py-2 rounded-full text-sm font-semibold font-nunito min-h-[40px] transition-colors ${
               effectiveSide === s
                 ? 'bg-onesie-purple text-primary-foreground'
@@ -141,6 +146,12 @@ export function FeedingCard() {
         Start Feeding
       </button>
       <button
+        onClick={() => setQuickAddOpen(true)}
+        className="w-full mt-2 flex items-center justify-center gap-2 bg-secondary text-secondary-foreground rounded-xl py-2.5 font-semibold font-nunito text-sm min-h-[40px] hover:bg-secondary/80 transition-colors"
+      >
+        <Clock className="w-4 h-4" /> + Add Feed by Duration
+      </button>
+      <button
         onClick={() => setBottleOpen(true)}
         className="w-full mt-2 flex items-center justify-center gap-2 bg-secondary text-secondary-foreground rounded-xl py-2.5 font-semibold font-nunito text-sm min-h-[40px] hover:bg-secondary/80 transition-colors"
       >
@@ -148,7 +159,74 @@ export function FeedingCard() {
       </button>
 
       <BottleFeedDialog open={bottleOpen} onClose={() => setBottleOpen(false)} />
+      <QuickAddFeedDialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} defaultSide={nextSide} />
     </div>
+  );
+}
+
+/* ── Quick "I just finished a feed" by duration ── */
+function QuickAddFeedDialog({ open, onClose, defaultSide }: { open: boolean; onClose: () => void; defaultSide: Side }) {
+  const { addPastFeeding } = useApp();
+  const [minutes, setMinutes] = useState('15');
+  const [side, setSide] = useState<Side>(defaultSide);
+  const [endTime, setEndTime] = useState(() => format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+
+  // Reset to the defaults (recommended side, ended just now) each time it opens.
+  const [lastOpen, setLastOpen] = useState(false);
+  if (open && !lastOpen) { setLastOpen(true); setSide(defaultSide); setMinutes('15'); setEndTime(format(new Date(), "yyyy-MM-dd'T'HH:mm")); }
+  if (!open && lastOpen) setLastOpen(false);
+
+  const save = () => {
+    const mins = Math.max(0, parseFloat(minutes) || 0);
+    if (mins <= 0) return;
+    const end = new Date(fromLocalDatetime(endTime));
+    const start = new Date(end.getTime() - mins * 60 * 1000);
+    addPastFeeding({
+      startTime: start.toISOString(),
+      endTime: end.toISOString(),
+      durationSeconds: Math.round(mins * 60),
+      side,
+      notes: '',
+    });
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
+        <DialogHeader><DialogTitle className="font-quicksand">Add Feed by Duration</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground font-nunito">Defaults to a feed that just ended now — change the end time if it was earlier.</p>
+          <div>
+            <label className="text-sm font-nunito text-muted-foreground">Side</label>
+            <div className="flex gap-2 mt-1">
+              {(['left', 'right', 'both'] as Side[]).map(s => (
+                <button
+                  key={s}
+                  onClick={() => setSide(s)}
+                  className={`flex-1 px-3 py-2 rounded-full text-sm font-semibold font-nunito min-h-[40px] transition-colors ${
+                    side === s ? 'bg-onesie-purple text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                  }`}
+                >
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-nunito text-muted-foreground">Duration (minutes)</label>
+            <Input type="number" inputMode="numeric" min="1" step="1" value={minutes} onChange={e => setMinutes(e.target.value)} />
+          </div>
+          <div>
+            <label className="text-sm font-nunito text-muted-foreground">Ended at</label>
+            <Input type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={save} className="w-full min-h-[48px] rounded-xl bg-onesie-purple hover:bg-onesie-purple/90 text-white font-nunito">Add Feed</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -179,7 +257,7 @@ function BottleFeedDialog({ open, onClose }: { open: boolean; onClose: () => voi
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Log Bottle Feed</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div>

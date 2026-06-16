@@ -55,6 +55,7 @@ export interface BabyProfile {
   dateOfBirth: string;
   defaultStartSide: Side;
   unitPreference: UnitPreference;
+  switchNursingEnabled: boolean;
 }
 
 export interface WeightLog {

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Baby, Droplets, Moon, Trash2, Pencil, Plus, Milk } from 'lucide-react';
+import { Baby, Droplets, Moon, Trash2, Pencil, Plus, Milk, List } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Side, DiaperType, ColorNote, SleepType, ContentType, FeedingSession, DiaperChange, SleepSession, PumpingSession, BottleFeed } from '@/types';
 
@@ -48,7 +48,7 @@ function EditFeedingDialog({ entry, open, onClose }: { entry: FeedingSession; op
   };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Edit Feeding</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Start Time</label>
@@ -84,7 +84,7 @@ function AddFeedingDialog({ open, onClose }: { open: boolean; onClose: () => voi
   };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Add Past Feeding</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Start Time</label>
@@ -115,7 +115,7 @@ function EditDiaperDialog({ entry, open, onClose }: { entry: DiaperChange; open:
   const save = () => { updateDiaper(entry.id, { timestamp: fromLocalDatetime(timestamp), type, colorNote: colorNote || null, notes }); onClose(); };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Edit Diaper Change</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Time</label>
@@ -150,7 +150,7 @@ function AddDiaperDialog({ open, onClose }: { open: boolean; onClose: () => void
   const save = () => { addPastDiaper({ timestamp: fromLocalDatetime(timestamp), type, colorNote: colorNote || null, notes }); onClose(); };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Add Past Diaper Change</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Time</label>
@@ -188,7 +188,7 @@ function EditSleepDialog({ entry, open, onClose }: { entry: SleepSession; open: 
   };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Edit Sleep Session</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Start Time</label>
@@ -224,7 +224,7 @@ function AddSleepDialog({ open, onClose }: { open: boolean; onClose: () => void 
   };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Add Past Sleep Session</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Start Time</label>
@@ -264,7 +264,7 @@ function EditPumpingDialog({ entry, open, onClose }: { entry: PumpingSession; op
   };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Edit Pumping Session</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Start Time</label>
@@ -306,7 +306,7 @@ function AddPumpingDialog({ open, onClose }: { open: boolean; onClose: () => voi
   };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Add Past Pumping Session</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Start Time</label>
@@ -344,7 +344,7 @@ function EditBottleDialog({ entry, open, onClose }: { entry: BottleFeed; open: b
   };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Edit Bottle Feed</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Time</label>
@@ -382,7 +382,7 @@ function AddBottleDialog({ open, onClose }: { open: boolean; onClose: () => void
   };
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-sm rounded-2xl">
+      <DialogContent className="max-w-sm rounded-2xl" onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader><DialogTitle className="font-quicksand">Add Past Bottle Feed</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <label className="text-sm font-nunito text-muted-foreground">Time</label>
@@ -426,17 +426,130 @@ export default function History() {
     ...bottleFeeds.map(b => ({ type: 'bottle' as const, data: b, time: new Date(b.timestamp).getTime() })),
   ].sort((a, b) => b.time - a.time);
 
+  // Every activity merged chronologically for the "All" tab
+  type AllEntry =
+    | { kind: 'breast'; time: number; data: FeedingSession }
+    | { kind: 'bottle'; time: number; data: BottleFeed }
+    | { kind: 'pumping'; time: number; data: PumpingSession }
+    | { kind: 'diaper'; time: number; data: DiaperChange }
+    | { kind: 'sleep'; time: number; data: SleepSession };
+
+  const allActivity: AllEntry[] = [
+    ...feedings.filter(f => f.endTime).map(f => ({ kind: 'breast' as const, time: new Date(f.startTime).getTime(), data: f })),
+    ...bottleFeeds.map(b => ({ kind: 'bottle' as const, time: new Date(b.timestamp).getTime(), data: b })),
+    ...pumpings.filter(p => p.endTime).map(p => ({ kind: 'pumping' as const, time: new Date(p.startTime).getTime(), data: p })),
+    ...diapers.map(d => ({ kind: 'diaper' as const, time: new Date(d.timestamp).getTime(), data: d })),
+    ...sleeps.filter(s => s.endTime).map(s => ({ kind: 'sleep' as const, time: new Date(s.startTime).getTime(), data: s })),
+  ].sort((a, b) => b.time - a.time);
+
+  const renderAllEntry = (entry: AllEntry) => {
+    switch (entry.kind) {
+      case 'breast': {
+        const f = entry.data;
+        return (
+          <div key={`f-${f.id}`} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-purple">
+            <div className="flex-1 min-w-0">
+              <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(f.startTime)} 🤱 <span className="text-xs font-normal text-muted-foreground">Feed</span></p>
+              <p className="text-xs text-muted-foreground font-nunito">{sideLabel[f.side]} · {formatDuration(f.durationSeconds || 0)}</p>
+              {f.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{f.notes}"</p>}
+            </div>
+            <div className="flex gap-1">
+              <button onClick={() => setEditFeeding(f)} className="text-muted-foreground hover:text-onesie-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+              <button onClick={() => deleteFeeding(f.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          </div>
+        );
+      }
+      case 'bottle': {
+        const b = entry.data;
+        return (
+          <div key={`b-${b.id}`} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-purple/60">
+            <div className="flex-1 min-w-0">
+              <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(b.timestamp)} 🍼 <span className="text-xs font-normal text-muted-foreground">Bottle</span></p>
+              <p className="text-xs text-muted-foreground font-nunito">{fromOz(b.amountOz).toFixed(1)} {unit} · {contentLabel[b.contentType]}</p>
+              {b.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{b.notes}"</p>}
+            </div>
+            <div className="flex gap-1">
+              <button onClick={() => setEditBottle(b)} className="text-muted-foreground hover:text-onesie-purple p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+              <button onClick={() => deleteBottleFeed(b.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          </div>
+        );
+      }
+      case 'pumping': {
+        const p = entry.data;
+        return (
+          <div key={`p-${p.id}`} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-amber">
+            <div className="flex-1 min-w-0">
+              <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(p.startTime)} 🍼 <span className="text-xs font-normal text-muted-foreground">Pump</span></p>
+              <p className="text-xs text-muted-foreground font-nunito">{sideLabel[p.side]} · {formatDuration(p.durationSeconds || 0)}{p.volumeOz ? ` · ${fromOz(p.volumeOz).toFixed(1)} ${unit}` : ''}</p>
+              {p.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{p.notes}"</p>}
+            </div>
+            <div className="flex gap-1">
+              <button onClick={() => setEditPumping(p)} className="text-muted-foreground hover:text-onesie-amber p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+              <button onClick={() => deletePumping(p.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          </div>
+        );
+      }
+      case 'diaper': {
+        const d = entry.data;
+        return (
+          <div key={`d-${d.id}`} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-teal">
+            <div className="flex-1 min-w-0">
+              <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(d.timestamp)} {diaperEmoji[d.type]} <span className="text-xs font-normal text-muted-foreground">Diaper</span></p>
+              <p className="text-xs text-muted-foreground font-nunito capitalize">{d.type}{d.colorNote ? ` · ${d.colorNote}` : ''}</p>
+              {d.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{d.notes}"</p>}
+            </div>
+            <div className="flex gap-1">
+              <button onClick={() => setEditDiaper(d)} className="text-muted-foreground hover:text-onesie-teal p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+              <button onClick={() => deleteDiaper(d.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          </div>
+        );
+      }
+      case 'sleep': {
+        const s = entry.data;
+        return (
+          <div key={`s-${s.id}`} className="bg-card rounded-xl p-4 flex items-center justify-between border-l-4 border-onesie-blue">
+            <div className="flex-1 min-w-0">
+              <p className="font-nunito font-semibold text-sm text-foreground">{formatDate(s.startTime)} {s.sleepType === 'night' ? '🌙' : '☀️'} <span className="text-xs font-normal text-muted-foreground">Sleep</span></p>
+              <p className="text-xs text-muted-foreground font-nunito">{s.sleepType === 'night' ? 'Night' : 'Nap'} · {formatDuration(s.durationSeconds || 0)}</p>
+              {s.notes && <p className="text-xs text-muted-foreground mt-1 italic truncate">"{s.notes}"</p>}
+            </div>
+            <div className="flex gap-1">
+              <button onClick={() => setEditSleep(s)} className="text-muted-foreground hover:text-onesie-blue p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Pencil className="w-4 h-4" /></button>
+              <button onClick={() => deleteSleep(s.id)} className="text-muted-foreground hover:text-destructive p-2 min-h-[40px] min-w-[40px] flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          </div>
+        );
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-lg mx-auto px-4 pt-6">
         <h1 className="text-2xl font-quicksand font-bold text-foreground mb-4">History</h1>
-        <Tabs defaultValue="feeding">
-          <TabsList className="grid w-full grid-cols-4 mb-4">
-            <TabsTrigger value="feeding" className="font-nunito text-xs gap-1"><Baby className="w-3.5 h-3.5" /> Feeding</TabsTrigger>
-            <TabsTrigger value="pumping" className="font-nunito text-xs gap-1"><Milk className="w-3.5 h-3.5" /> Pumping</TabsTrigger>
-            <TabsTrigger value="diaper" className="font-nunito text-xs gap-1"><Droplets className="w-3.5 h-3.5" /> Diaper</TabsTrigger>
-            <TabsTrigger value="sleep" className="font-nunito text-xs gap-1"><Moon className="w-3.5 h-3.5" /> Sleep</TabsTrigger>
+        <Tabs defaultValue="all">
+          <TabsList className="grid w-full grid-cols-5 mb-4">
+            <TabsTrigger value="all" className="font-nunito text-xs gap-1 px-1"><List className="w-3.5 h-3.5" /> All</TabsTrigger>
+            <TabsTrigger value="feeding" className="font-nunito text-xs gap-1 px-1"><Baby className="w-3.5 h-3.5" /> Feed</TabsTrigger>
+            <TabsTrigger value="pumping" className="font-nunito text-xs gap-1 px-1"><Milk className="w-3.5 h-3.5" /> Pump</TabsTrigger>
+            <TabsTrigger value="diaper" className="font-nunito text-xs gap-1 px-1"><Droplets className="w-3.5 h-3.5" /> Diaper</TabsTrigger>
+            <TabsTrigger value="sleep" className="font-nunito text-xs gap-1 px-1"><Moon className="w-3.5 h-3.5" /> Sleep</TabsTrigger>
           </TabsList>
+
+          {/* ── All Activity Tab ── */}
+          <TabsContent value="all">
+            {allActivity.length === 0 ? (
+              <EmptyState text="No activity logged yet" />
+            ) : (
+              <div className="space-y-2">
+                {allActivity.map(renderAllEntry)}
+              </div>
+            )}
+          </TabsContent>
 
           {/* ── Feeding Tab (breast + bottle) ── */}
           <TabsContent value="feeding">
