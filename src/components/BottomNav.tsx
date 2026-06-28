@@ -1,9 +1,10 @@
-import { Home, ClipboardList, BarChart3, Settings } from 'lucide-react';
+import { Home, CalendarClock, ClipboardList, BarChart3, Settings } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const tabs = [
   { path: '/', label: 'Home', icon: Home },
+  { path: '/schedule', label: 'Schedule', icon: CalendarClock },
   { path: '/history', label: 'History', icon: ClipboardList },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
   { path: '/settings', label: 'Settings', icon: Settings },

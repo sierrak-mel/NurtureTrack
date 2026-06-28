@@ -8,6 +8,7 @@ import { AppProvider } from "@/context/AppContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { BottomNav } from "@/components/BottomNav";
 import Index from "./pages/Index";
+import Schedule from "./pages/Schedule";
 import History from "./pages/History";
 import Analytics from "./pages/Analytics";
 import GrowthPage from "./pages/GrowthPage";
@@ -48,6 +49,7 @@ const AppRoutes = () => (
         <Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+        <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
         <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
         <Route path="/growth" element={<ProtectedRoute><GrowthPage /></ProtectedRoute>} />

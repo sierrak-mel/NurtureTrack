@@ -5,6 +5,7 @@ import { PumpingCard } from '@/components/PumpingCard';
 import { ActiveSessionBanner } from '@/components/ActiveSessionBanner';
 import { FeedingReminderBanner } from '@/components/FeedingReminderBanner';
 import { InstallPromptDialog } from '@/components/InstallPromptDialog';
+import { ScheduleNowCard } from '@/components/ScheduleNowCard';
 import { useApp } from '@/context/AppContext';
 
 const Index = () => {
@@ -27,6 +28,7 @@ const Index = () => {
         </header>
         <FeedingReminderBanner />
         <div className="space-y-4 mt-4">
+          <ScheduleNowCard />
           <FeedingCard />
           <PumpingCard />
           <DiaperCard />
