@@ -8,6 +8,8 @@ import { LogOut, Link2, Trash2, Crown, User, Copy, Check, RefreshCw, Sun, Moon, 
 import { Switch } from '@/components/ui/switch';
 import { InstallInstructions } from '@/components/InstallInstructions';
 import { detectPlatform, isStandalone } from '@/lib/platform';
+import { isPushSupported, isSubscribed, enablePush, disablePush } from '@/lib/push';
+import { Bell } from 'lucide-react';
 
 const DEFAULT_REMINDER: FeedingReminderSettings = {
   enabled: false,
@@ -18,7 +20,7 @@ const DEFAULT_REMINDER: FeedingReminderSettings = {
 };
 
 export default function SettingsPage() {
-  const { profile, setProfile, caregiver, caregivers, familyId } = useApp();
+  const { profile, setProfile, caregiver, caregivers, familyId, babyProfileId } = useApp();
   const { user, signOut, claimInvite } = useAuth();
   const { theme, setTheme } = useTheme();
   const [name, setName] = useState(profile?.name || '');
@@ -31,6 +33,32 @@ export default function SettingsPage() {
   // Detect platform + whether the app is already installed to the home screen
   const [platform] = useState(detectPlatform);
   const [isInstalled] = useState(isStandalone);
+
+  // Schedule notifications (web push)
+  const [pushOn, setPushOn] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushMsg, setPushMsg] = useState('');
+  const pushSupported = isPushSupported();
+  // iOS only delivers web push when the app is installed to the home screen.
+  const needsInstallForPush = platform === 'ios' && !isInstalled;
+
+  useEffect(() => {
+    isSubscribed().then(setPushOn);
+  }, []);
+
+  const handleTogglePush = async (next: boolean) => {
+    setPushMsg(''); setPushBusy(true);
+    if (next) {
+      if (!caregiver || !babyProfileId) { setPushMsg('Profile still loading — try again in a moment.'); setPushBusy(false); return; }
+      const err = await enablePush({ caregiverId: caregiver.id, babyProfileId });
+      if (err) { setPushMsg(err); setPushOn(false); }
+      else { setPushOn(true); setPushMsg('Notifications on — you’ll get an alert at the start of each schedule block.'); }
+    } else {
+      await disablePush();
+      setPushOn(false);
+    }
+    setPushBusy(false);
+  };
 
   const [inviteCode, setInviteCode] = useState('');
   const [inviteLoading, setInviteLoading] = useState(false);
@@ -179,6 +207,33 @@ export default function SettingsPage() {
           )}
 
           <InstallInstructions platform={platform} />
+        </div>
+
+        {/* Schedule Notifications */}
+        <div className="bg-card rounded-2xl p-5 shadow-sm space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-primary" />
+              <h2 className="font-quicksand font-bold text-lg text-foreground">Schedule Notifications</h2>
+            </div>
+            <Switch
+              checked={pushOn}
+              disabled={pushBusy || !pushSupported || needsInstallForPush}
+              onCheckedChange={handleTogglePush}
+            />
+          </div>
+          <p className="text-sm text-muted-foreground font-nunito">
+            Get a push notification at the start of each schedule block (feeds, naps, bedtime) — even when the app is closed.
+          </p>
+          {!pushSupported && (
+            <p className="text-xs font-nunito text-onesie-amber">This browser doesn’t support notifications.</p>
+          )}
+          {needsInstallForPush && (
+            <p className="text-xs font-nunito text-onesie-amber">
+              On iPhone, add Onesie to your home screen first (see above), then open it from there to turn this on.
+            </p>
+          )}
+          {pushMsg && <p className="text-xs font-nunito text-muted-foreground">{pushMsg}</p>}
         </div>
 
         {/* Baby Profile */}

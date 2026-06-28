@@ -16,3 +16,10 @@ try {
 } catch {}
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+// Register the service worker (needed for web-push notifications).
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
+  });
+}

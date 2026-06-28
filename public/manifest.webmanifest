@@ -1,0 +1,15 @@
+{
+  "name": "Onesie — Baby Care Tracker",
+  "short_name": "Onesie",
+  "description": "Track feeding, pumping, diapers, sleep, and your baby's daily schedule.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6efe9",
+  "theme_color": "#f6efe9",
+  "icons": [
+    { "src": "/icon_rings.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "/icon_rings.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon_rings.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
