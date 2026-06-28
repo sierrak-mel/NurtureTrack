@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { Milk, Utensils, Smile, Moon, Bath, BedDouble, CalendarClock } from 'lucide-react';
+import { Milk, Utensils, Smile, Moon, Bath, BedDouble, CalendarClock, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   ageInDays, formatAge, getScheduleForAge, getCurrentAndNext, timeToMinutes,
   type ScheduleActivityType, type ScheduleBlock,
@@ -21,6 +21,7 @@ export default function Schedule() {
   const { profile } = useApp();
   const navigate = useNavigate();
   const [now, setNow] = useState(() => new Date());
+  const [showPast, setShowPast] = useState(false);
 
   // Re-tick every minute so the "now" position stays current.
   useEffect(() => {
@@ -54,6 +55,8 @@ export default function Schedule() {
   const { current, next } = getCurrentAndNext(schedule, now);
   const sorted = [...schedule.blocks].sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
   const currentMin = timeToMinutes(current.time);
+  const pastBlocks = sorted.filter(b => timeToMinutes(b.time) < currentMin);
+  const restBlocks = sorted.filter(b => timeToMinutes(b.time) >= currentMin);
 
   const currentMeta = TYPE_META[current.type];
   const nextMeta = TYPE_META[next.type];
@@ -90,15 +93,24 @@ export default function Schedule() {
 
         {/* Full day timeline */}
         <div className="space-y-2">
-          {sorted.map((block, i) => {
-            const meta = TYPE_META[block.type];
-            const blockMin = timeToMinutes(block.time);
-            const isCurrent = block === current;
-            const isPast = blockMin < currentMin;
-            return (
-              <ScheduleRow key={`${block.time}-${i}`} block={block} meta={meta} isCurrent={isCurrent} isPast={isPast} nowLabel={format(now, 'h:mm a')} />
-            );
-          })}
+          {pastBlocks.length > 0 && (
+            <>
+              <button
+                onClick={() => setShowPast(v => !v)}
+                className="w-full flex items-center justify-center gap-2 bg-card rounded-xl py-2.5 text-xs font-nunito font-semibold text-muted-foreground border border-dashed border-border hover:text-foreground transition-colors"
+              >
+                {showPast ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showPast ? 'Hide earlier today' : `Earlier today · ${pastBlocks.length} ${pastBlocks.length === 1 ? 'block' : 'blocks'}`}
+              </button>
+              {showPast && pastBlocks.map((block, i) => (
+                <ScheduleRow key={`past-${block.time}-${i}`} block={block} meta={TYPE_META[block.type]} isCurrent={false} isPast={true} nowLabel={format(now, 'h:mm a')} />
+              ))}
+            </>
+          )}
+
+          {restBlocks.map((block, i) => (
+            <ScheduleRow key={`${block.time}-${i}`} block={block} meta={TYPE_META[block.type]} isCurrent={block === current} isPast={false} nowLabel={format(now, 'h:mm a')} />
+          ))}
         </div>
 
         <p className="text-xs text-muted-foreground/80 font-nunito leading-relaxed">{schedule.notes}</p>
