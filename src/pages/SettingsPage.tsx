@@ -8,7 +8,7 @@ import { LogOut, Link2, Trash2, Crown, User, Copy, Check, RefreshCw, Sun, Moon, 
 import { Switch } from '@/components/ui/switch';
 import { InstallInstructions } from '@/components/InstallInstructions';
 import { detectPlatform, isStandalone } from '@/lib/platform';
-import { isPushSupported, isSubscribed, enablePush, disablePush } from '@/lib/push';
+import { isPushSupported, isSubscribed, enablePush, disablePush, getPrefs, updatePrefs, type NotificationPrefs } from '@/lib/push';
 import { Bell } from 'lucide-react';
 
 const DEFAULT_REMINDER: FeedingReminderSettings = {
@@ -38,12 +38,16 @@ export default function SettingsPage() {
   const [pushOn, setPushOn] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
   const [pushMsg, setPushMsg] = useState('');
+  const [prefs, setPrefs] = useState<NotificationPrefs>({ atStart: true, before: false, beforeMinutes: 10 });
   const pushSupported = isPushSupported();
   // iOS only delivers web push when the app is installed to the home screen.
   const needsInstallForPush = platform === 'ios' && !isInstalled;
 
   useEffect(() => {
-    isSubscribed().then(setPushOn);
+    isSubscribed().then(sub => {
+      setPushOn(sub);
+      if (sub) getPrefs().then(p => p && setPrefs(p));
+    });
   }, []);
 
   const handleTogglePush = async (next: boolean) => {
@@ -52,12 +56,17 @@ export default function SettingsPage() {
       if (!caregiver || !babyProfileId) { setPushMsg('Profile still loading — try again in a moment.'); setPushBusy(false); return; }
       const err = await enablePush({ caregiverId: caregiver.id, babyProfileId });
       if (err) { setPushMsg(err); setPushOn(false); }
-      else { setPushOn(true); setPushMsg('Notifications on — you’ll get an alert at the start of each schedule block.'); }
+      else { setPushOn(true); setPushMsg(''); const p = await getPrefs(); if (p) setPrefs(p); }
     } else {
       await disablePush();
       setPushOn(false);
     }
     setPushBusy(false);
+  };
+
+  const savePrefs = (next: NotificationPrefs) => {
+    setPrefs(next);
+    updatePrefs(next);
   };
 
   const [inviteCode, setInviteCode] = useState('');
@@ -223,7 +232,7 @@ export default function SettingsPage() {
             />
           </div>
           <p className="text-sm text-muted-foreground font-nunito">
-            Get a push notification at the start of each schedule block (feeds, naps, bedtime) — even when the app is closed.
+            Get a push notification for each schedule block (feeds, naps, bedtime) — even when the app is closed.
           </p>
           {!pushSupported && (
             <p className="text-xs font-nunito text-onesie-amber">This browser doesn’t support notifications.</p>
@@ -233,6 +242,48 @@ export default function SettingsPage() {
               On iPhone, add Onesie to your home screen first (see above), then open it from there to turn this on.
             </p>
           )}
+
+          {pushOn && (
+            <div className="space-y-3 border-t border-border pt-3">
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-sm font-nunito text-foreground">When each block starts</label>
+                <Switch checked={prefs.atStart} onCheckedChange={v => savePrefs({ ...prefs, atStart: v })} />
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <label className="text-sm font-nunito text-foreground">Before each block</label>
+                <Switch checked={prefs.before} onCheckedChange={v => savePrefs({ ...prefs, before: v })} />
+              </div>
+
+              {prefs.before && (
+                <div className="pl-1">
+                  <p className="text-xs font-nunito text-muted-foreground mb-1.5">
+                    Remind me <span className="font-semibold text-foreground">{prefs.beforeMinutes} min</span> before
+                  </p>
+                  <div className="flex gap-2">
+                    {[5, 10, 15].map(m => (
+                      <button
+                        key={m}
+                        onClick={() => savePrefs({ ...prefs, beforeMinutes: m })}
+                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold font-nunito min-h-[40px] transition-colors ${
+                          prefs.beforeMinutes === m ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                        }`}
+                      >
+                        {m} min
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {!prefs.atStart && !prefs.before && (
+                <p className="text-xs font-nunito text-onesie-amber">
+                  Both reminder types are off — turn one on, or switch off Schedule Notifications above.
+                </p>
+              )}
+            </div>
+          )}
+
           {pushMsg && <p className="text-xs font-nunito text-muted-foreground">{pushMsg}</p>}
         </div>
 

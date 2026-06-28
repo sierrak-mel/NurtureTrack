@@ -84,6 +84,46 @@ export async function enablePush(opts: { caregiverId: string; babyProfileId: str
   }
 }
 
+export interface NotificationPrefs {
+  atStart: boolean;
+  before: boolean;
+  beforeMinutes: number;
+}
+
+async function currentEndpoint(): Promise<string | null> {
+  try {
+    const reg = await navigator.serviceWorker.getRegistration('/');
+    const sub = await reg?.pushManager.getSubscription();
+    return sub?.endpoint ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Read this device's reminder preferences (or null if not subscribed). */
+export async function getPrefs(): Promise<NotificationPrefs | null> {
+  const endpoint = await currentEndpoint();
+  if (!endpoint) return null;
+  const { data } = await (supabase.from('push_subscriptions' as never) as never as {
+    select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => Promise<{ data: { notify_at_start: boolean; notify_before: boolean; before_minutes: number } | null }> } };
+  }).select('notify_at_start, notify_before, before_minutes').eq('endpoint', endpoint).maybeSingle();
+  if (!data) return null;
+  return { atStart: data.notify_at_start, before: data.notify_before, beforeMinutes: data.before_minutes };
+}
+
+/** Update this device's reminder preferences. */
+export async function updatePrefs(prefs: NotificationPrefs): Promise<void> {
+  const endpoint = await currentEndpoint();
+  if (!endpoint) return;
+  await (supabase.from('push_subscriptions' as never) as never as {
+    update: (v: unknown) => { eq: (k: string, val: string) => Promise<unknown> };
+  }).update({
+    notify_at_start: prefs.atStart,
+    notify_before: prefs.before,
+    before_minutes: prefs.beforeMinutes,
+  }).eq('endpoint', endpoint);
+}
+
 /** Unsubscribe this device and remove its stored subscription. */
 export async function disablePush(): Promise<void> {
   try {

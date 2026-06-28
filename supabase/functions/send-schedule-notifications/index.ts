@@ -79,6 +79,16 @@ function ageDays(dob: string, todayYmd: string): number {
   return Math.floor((today - birth) / 86400000);
 }
 
+function hhmmToMin(t: string): number {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function minToHHMM(min: number): string {
+  const m = ((min % 1440) + 1440) % 1440;
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+}
+
 Deno.serve(async (req) => {
   if (req.headers.get('x-cron-secret') !== Deno.env.get('CRON_SECRET')) {
     return new Response('Unauthorized', { status: 401 });
@@ -97,7 +107,7 @@ Deno.serve(async (req) => {
 
   const { data: subs, error } = await supabase
     .from('push_subscriptions')
-    .select('endpoint, p256dh, auth, timezone, baby_profile_id, schedule_notifications, baby_profiles(name, date_of_birth)')
+    .select('endpoint, p256dh, auth, timezone, baby_profile_id, schedule_notifications, notify_at_start, notify_before, before_minutes, baby_profiles(name, date_of_birth)')
     .eq('schedule_notifications', true);
 
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
@@ -113,27 +123,50 @@ Deno.serve(async (req) => {
     if (days < 0) continue;
 
     const schedule = scheduleForAge(days);
-    const block = schedule.blocks.find(b => b.time === hhmm);
-    if (!block) continue;
+    const babyName = baby.name || 'Baby';
+    const nowMin = hhmmToMin(hhmm);
 
-    const payload = JSON.stringify({
-      title: `⏰ ${block.title}`,
-      body: `${baby.name || 'Baby'} · time for ${block.title.toLowerCase()} (${schedule.name})`,
-      url: '/schedule',
-      tag: `onesie-${block.time}`,
-    });
+    const atStart = sub.notify_at_start !== false; // default on
+    const before = sub.notify_before === true;
+    const beforeMin = sub.before_minutes ?? 10;
 
-    try {
-      await webpush.sendNotification(
-        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        payload,
-      );
-      sent++;
-    } catch (e) {
-      const status = (e as { statusCode?: number }).statusCode;
-      if (status === 404 || status === 410) {
-        // Subscription expired — clean it up.
-        await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+    const toSend: { title: string; body: string; tag: string }[] = [];
+
+    if (atStart) {
+      const b = schedule.blocks.find(x => x.time === hhmm);
+      if (b) toSend.push({
+        title: `⏰ ${b.title}`,
+        body: `${babyName} · time for ${b.title.toLowerCase()} (${schedule.name})`,
+        tag: `onesie-${b.time}`,
+      });
+    }
+
+    if (before) {
+      const targetTime = minToHHMM(nowMin + beforeMin);
+      const b = schedule.blocks.find(x => x.time === targetTime);
+      if (b) toSend.push({
+        title: `🔔 ${b.title} in ${beforeMin} min`,
+        body: `${babyName} · ${b.title} starts soon (${schedule.name})`,
+        tag: `onesie-${b.time}-pre`,
+      });
+    }
+
+    if (toSend.length === 0) continue;
+
+    for (const n of toSend) {
+      try {
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title: n.title, body: n.body, url: '/schedule', tag: n.tag }),
+        );
+        sent++;
+      } catch (e) {
+        const status = (e as { statusCode?: number }).statusCode;
+        if (status === 404 || status === 410) {
+          // Subscription expired — clean it up and stop trying this device.
+          await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+          break;
+        }
       }
     }
   }
