@@ -13,6 +13,10 @@ interface AuthState {
   claimInvite: (inviteCode: string) => Promise<{ error: any }>;
 }
 
+// Where a pending caregiver invite code is stashed between signup and the moment
+// the user is authenticated (email confirmation happens in between).
+export const PENDING_INVITE_KEY = 'onesie_pending_invite';
+
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -54,19 +58,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, displayName: string, inviteCode?: string) => {
+    // Carry the invite code through email confirmation so the claim can happen
+    // once the user actually has a session (see AppContext bootstrap).
+    const emailRedirectTo = inviteCode
+      ? `${window.location.origin}/?invite=${encodeURIComponent(inviteCode)}`
+      : window.location.origin;
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo,
         data: { display_name: displayName },
       },
     });
     if (error) return { error };
 
-    if (data.user) {
+    // Stash the invite so we can claim it after the user is authenticated,
+    // even if they confirm their email in a different tab/session.
+    if (inviteCode) {
+      try { localStorage.setItem(PENDING_INVITE_KEY, inviteCode); } catch { /* ignore */ }
+    }
+
+    // When email confirmation is disabled, signUp returns a live session and we
+    // can claim/create right away. When it's enabled there is no session yet, so
+    // the family/invite bootstrap runs later in AppContext once the user logs in.
+    if (data.session && data.user) {
       if (inviteCode) {
-        // Claim the invite to join existing family
         const { data: result, error: rpcError } = await supabase.rpc('claim_invite', {
           _invite_code: inviteCode,
           _user_id: data.user.id,
@@ -75,6 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (rpcError) return { error: rpcError };
         const parsed = result as any;
         if (!parsed.success) return { error: { message: parsed.error } };
+        try { localStorage.removeItem(PENDING_INVITE_KEY); } catch { /* ignore */ }
       } else {
         const { error: rpcError } = await supabase.rpc('create_user_family', {
           p_display_name: displayName,
