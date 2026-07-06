@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, PENDING_INVITE_KEY } from '@/context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Baby, Gift } from 'lucide-react';
 
@@ -20,7 +20,12 @@ export default function AuthPage() {
   const inviteCode = searchParams.get('invite') || '';
 
   useEffect(() => {
-    if (inviteCode) setMode('signup');
+    if (inviteCode) {
+      setMode('signup');
+      // Persist immediately so the invite survives the email-confirmation round
+      // trip, even if the user reloads or bounces before submitting.
+      try { localStorage.setItem(PENDING_INVITE_KEY, inviteCode); } catch { /* ignore */ }
+    }
   }, [inviteCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {

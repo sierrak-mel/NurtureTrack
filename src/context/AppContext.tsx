@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, PENDING_INVITE_KEY } from '@/context/AuthContext';
 import type { Side, DiaperType, ColorNote, SleepType, ContentType, UnitPreference } from '@/types';
 import type { FeedingSession, DiaperChange, SleepSession, PumpingSession, BottleFeed, BabyProfile } from '@/types';
 
@@ -56,6 +56,32 @@ interface AppState {
   loading: boolean;
 }
 
+// A pending caregiver invite can arrive two ways: stashed in localStorage at
+// signup (same device), or in the URL after confirming email (possibly a
+// different device — emailRedirectTo carries `?invite=`).
+function getPendingInvite(): string | null {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get('invite');
+    if (fromUrl) return fromUrl;
+  } catch { /* ignore */ }
+  try {
+    return localStorage.getItem(PENDING_INVITE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function clearPendingInvite() {
+  try { localStorage.removeItem(PENDING_INVITE_KEY); } catch { /* ignore */ }
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('invite')) {
+      url.searchParams.delete('invite');
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+    }
+  } catch { /* ignore */ }
+}
+
 const AppContext = createContext<AppState | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -95,8 +121,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     const { data: cgRows } = await supabase.from('caregivers').select('*').eq('user_id', user.id).limit(1);
     let cg = cgRows?.[0] || null;
+    const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Caregiver';
+
+    // If the user arrived via a caregiver invite link, claim it *before* falling
+    // back to creating a brand-new family — otherwise they'd be forked off into
+    // their own family instead of joining the inviter's.
     if (!cg) {
-      const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Caregiver';
+      const pendingInvite = getPendingInvite();
+      if (pendingInvite) {
+        await supabase.rpc('claim_invite', {
+          _invite_code: pendingInvite,
+          _user_id: user.id,
+          _display_name: displayName,
+        });
+        clearPendingInvite();
+        // On success we now have a caregiver row in the inviter's family. (If the
+        // code was expired/invalid we fall through to creating their own family.)
+        const { data: claimedCg } = await supabase.from('caregivers').select('*').eq('user_id', user.id).maybeSingle();
+        cg = claimedCg;
+      }
+    }
+
+    if (!cg) {
       const { error: rpcError } = await supabase.rpc('create_user_family', {
         p_display_name: displayName,
         p_baby_name: 'Baby',
