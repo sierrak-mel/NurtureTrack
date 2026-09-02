@@ -1,6 +1,8 @@
 // Supabase Edge Function: send schedule notifications.
 //
-// Invoked once a minute by pg_cron. For every push subscription with
+// Invoked by pg_cron (every 5 minutes — see supabase/ops/disk-io-housekeeping.sql;
+// every schedule block sits on :00/:30 local, so a 5-minute cadence misses
+// nothing). For every push subscription with
 // schedule_notifications on, it works out the baby's current age + schedule,
 // and if a schedule block starts at the current minute (in that device's
 // timezone) it sends a web-push notification.

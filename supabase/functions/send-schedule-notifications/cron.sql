@@ -1,7 +1,14 @@
 -- Run this ONCE in the Supabase SQL Editor (project: ayegbhwjbakcmuxsmint) to
--- schedule the notification sender. It needs the pg_cron and pg_net extensions
--- (enable them first in Dashboard → Database → Extensions, or via the
--- CREATE EXTENSION lines below).
+-- schedule the notification sender.
+--
+-- NOTE (2026-09-02): the '* * * * *' schedule below was a significant source of
+-- baseline Disk IO — 1,440 runs/day, each writing a cron.job_run_details row
+-- and a pg_net request/response pair. supabase/ops/disk-io-housekeeping.sql
+-- replaces it with '*/5 * * * *', which still covers every minute a schedule
+-- block can fire on. Prefer that file for new setups.
+--
+-- Either way this needs the pg_cron and pg_net extensions (enable them first in
+-- Dashboard → Database → Extensions, or via the CREATE EXTENSION lines below).
 
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;

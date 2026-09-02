@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '@/context/AppContext';
+import { HISTORY_WINDOW_OPTIONS } from '@/lib/historyWindow';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -405,7 +406,7 @@ function AddBottleDialog({ open, onClose }: { open: boolean; onClose: () => void
 
 /* ── Main History Page ── */
 export default function History() {
-  const { feedings, deleteFeeding, diapers, deleteDiaper, sleeps, deleteSleep, pumpings, deletePumping, bottleFeeds, deleteBottleFeed, profile } = useApp();
+  const { feedings, deleteFeeding, diapers, deleteDiaper, sleeps, deleteSleep, pumpings, deletePumping, bottleFeeds, deleteBottleFeed, profile, historyDays, setHistoryDays, historyLoading } = useApp();
   const unit = profile?.unitPreference || 'oz';
   const fromOz = (oz: number) => unit === 'ml' ? oz * 29.5735 : oz;
 
@@ -530,7 +531,30 @@ export default function History() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-lg mx-auto px-4 pt-6">
-        <h1 className="text-2xl font-quicksand font-bold text-foreground mb-4">History</h1>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h1 className="text-2xl font-quicksand font-bold text-foreground">History</h1>
+          {/* How far back to load. Defaults to 3 months so the app isn't
+              pulling every row ever logged on each visit; widen it here when
+              you need older entries. */}
+          <Select
+            value={String(historyDays ?? 'all')}
+            onValueChange={v => setHistoryDays(v === 'all' ? null : Number(v))}
+          >
+            <SelectTrigger className="w-[140px] h-9 rounded-xl font-nunito text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {HISTORY_WINDOW_OPTIONS.map(o => (
+                <SelectItem key={o.label} value={String(o.days ?? 'all')} className="font-nunito text-xs">
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {historyLoading && (
+          <p className="text-xs text-muted-foreground font-nunito mb-3">Loading entries…</p>
+        )}
         <Tabs defaultValue="all">
           <TabsList className="grid w-full grid-cols-5 mb-4">
             <TabsTrigger value="all" className="font-nunito text-xs gap-1 px-1"><List className="w-3.5 h-3.5" /> All</TabsTrigger>

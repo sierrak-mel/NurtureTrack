@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { HISTORY_WINDOW_KEY, HISTORY_WINDOW_DEFAULT_DAYS } from '@/lib/historyWindow';
 import type { Side, DiaperType, ColorNote, SleepType, ContentType, UnitPreference } from '@/types';
 import type { FeedingSession, DiaperChange, SleepSession, PumpingSession, BottleFeed, BabyProfile } from '@/types';
 
@@ -54,6 +56,71 @@ interface AppState {
   babyProfileId: string | null;
   familyId: string | null;
   loading: boolean;
+  // Rolling history window. `null` means all time. Changing it refetches.
+  historyDays: number | null;
+  setHistoryDays: (days: number | null) => void;
+  historyLoading: boolean;
+}
+
+// Pulls the five tracker tables for one baby, scoped to `days` of history
+// (null = all time). Lives at module scope so the effect that calls it needs
+// no dependency juggling.
+//
+// In-progress sessions (end_time IS NULL) are always included regardless of
+// the cutoff — otherwise a night sleep or a feed that began before the window
+// would disappear from under the user mid-session, and `activeSleep` /
+// `activeFeeding` would go null while the timer was still running.
+async function fetchTrackerData(bpId: string, days: number | null) {
+  const cutoff = days === null
+    ? null
+    : new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+  // Filters must be applied before .order() — the builder drops .or() after it.
+  let feedF = supabase.from('feeding_sessions').select('*').eq('baby_profile_id', bpId);
+  let diapF = supabase.from('diaper_changes').select('*').eq('baby_profile_id', bpId);
+  let sleepF = supabase.from('sleep_sessions').select('*').eq('baby_profile_id', bpId);
+  let pumpF = supabase.from('pumping_sessions' as any).select('*').eq('baby_profile_id', bpId);
+  let bottleF = supabase.from('bottle_feeds' as any).select('*').eq('baby_profile_id', bpId);
+
+  if (cutoff) {
+    feedF = feedF.or(`end_time.is.null,start_time.gte.${cutoff}`);
+    sleepF = sleepF.or(`end_time.is.null,start_time.gte.${cutoff}`);
+    pumpF = pumpF.or(`end_time.is.null,start_time.gte.${cutoff}`);
+    // diaper_changes and bottle_feeds are instantaneous — no open state.
+    diapF = diapF.gte('timestamp', cutoff);
+    bottleF = bottleF.gte('timestamp', cutoff);
+  }
+
+  const [feedRes, diapRes, sleepRes, pumpRes, bottleRes] = await Promise.all([
+    feedF.order('start_time', { ascending: false }),
+    diapF.order('timestamp', { ascending: false }),
+    sleepF.order('start_time', { ascending: false }),
+    pumpF.order('start_time', { ascending: false }),
+    bottleF.order('timestamp', { ascending: false }),
+  ]);
+
+  return {
+    feedings: (feedRes.data || []).map((f: any) => ({
+      id: f.id, startTime: f.start_time, endTime: f.end_time, durationSeconds: f.duration_seconds,
+      side: f.side as Side, notes: f.notes || '',
+    })) as FeedingSession[],
+    diapers: (diapRes.data || []).map((d: any) => ({
+      id: d.id, timestamp: d.timestamp, type: d.type as DiaperType,
+      colorNote: d.color_note as ColorNote | null, notes: d.notes || '',
+    })) as DiaperChange[],
+    sleeps: (sleepRes.data || []).map((s: any) => ({
+      id: s.id, startTime: s.start_time, endTime: s.end_time, durationSeconds: s.duration_seconds,
+      sleepType: s.sleep_type as SleepType, notes: s.notes || '',
+    })) as SleepSession[],
+    pumpings: (pumpRes.data || []).map((p: any) => ({
+      id: p.id, startTime: p.start_time, endTime: p.end_time, durationSeconds: p.duration_seconds,
+      side: p.side as Side, volumeOz: p.volume_oz, notes: p.notes || '',
+    })) as PumpingSession[],
+    bottleFeeds: (bottleRes.data || []).map((b: any) => ({
+      id: b.id, timestamp: b.timestamp, amountOz: Number(b.amount_oz),
+      contentType: b.content_type as ContentType, notes: b.notes || '',
+    })) as BottleFeed[],
+  };
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -69,6 +136,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [sleeps, setSleeps] = useState<SleepSession[]>([]);
   const [pumpings, setPumpings] = useState<PumpingSession[]>([]);
   const [bottleFeeds, setBottleFeeds] = useState<BottleFeed[]>([]);
+  const [historyDays, setHistoryDays] = useLocalStorage<number | null>(
+    HISTORY_WINDOW_KEY, HISTORY_WINDOW_DEFAULT_DAYS,
+  );
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const babyProfileId = babyProfile?.id || null;
   const familyId = caregiver?.family_id || null;
@@ -113,41 +184,34 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const { data: bp } = await supabase.from('baby_profiles').select('*').eq('family_id', cg.family_id).maybeSingle();
     if (bp) {
       setBabyProfile({ id: bp.id, name: bp.name, date_of_birth: bp.date_of_birth, default_start_side: bp.default_start_side as Side, family_id: bp.family_id, unit_preference: (bp as any).unit_preference || 'oz', switch_nursing_enabled: (bp as any).switch_nursing_enabled || false });
-      await loadTrackerData(bp.id);
+      // Tracker rows are loaded by the effect below, which also re-runs when
+      // the history window changes. It clears `loading` once they land.
+      return;
     }
     setLoading(false);
   };
 
-  const loadTrackerData = async (bpId: string) => {
-    const [feedRes, diapRes, sleepRes, pumpRes, bottleRes] = await Promise.all([
-      supabase.from('feeding_sessions').select('*').eq('baby_profile_id', bpId).order('start_time', { ascending: false }),
-      supabase.from('diaper_changes').select('*').eq('baby_profile_id', bpId).order('timestamp', { ascending: false }),
-      supabase.from('sleep_sessions').select('*').eq('baby_profile_id', bpId).order('start_time', { ascending: false }),
-      supabase.from('pumping_sessions' as any).select('*').eq('baby_profile_id', bpId).order('start_time', { ascending: false }),
-      supabase.from('bottle_feeds' as any).select('*').eq('baby_profile_id', bpId).order('timestamp', { ascending: false }),
-    ]);
-
-    setFeedings((feedRes.data || []).map((f: any) => ({
-      id: f.id, startTime: f.start_time, endTime: f.end_time, durationSeconds: f.duration_seconds,
-      side: f.side as Side, notes: f.notes || '',
-    })));
-    setDiapers((diapRes.data || []).map((d: any) => ({
-      id: d.id, timestamp: d.timestamp, type: d.type as DiaperType,
-      colorNote: d.color_note as ColorNote | null, notes: d.notes || '',
-    })));
-    setSleeps((sleepRes.data || []).map((s: any) => ({
-      id: s.id, startTime: s.start_time, endTime: s.end_time, durationSeconds: s.duration_seconds,
-      sleepType: s.sleep_type as SleepType, notes: s.notes || '',
-    })));
-    setPumpings((pumpRes.data || []).map((p: any) => ({
-      id: p.id, startTime: p.start_time, endTime: p.end_time, durationSeconds: p.duration_seconds,
-      side: p.side as Side, volumeOz: p.volume_oz, notes: p.notes || '',
-    })));
-    setBottleFeeds((bottleRes.data || []).map((b: any) => ({
-      id: b.id, timestamp: b.timestamp, amountOz: Number(b.amount_oz),
-      contentType: b.content_type as ContentType, notes: b.notes || '',
-    })));
-  };
+  // Load (and reload) tracker data whenever the baby or the history window
+  // changes. `cancelled` guards against a slow response for an old window
+  // landing after a newer one and clobbering it.
+  useEffect(() => {
+    const bpId = babyProfile?.id;
+    if (!bpId) return;
+    let cancelled = false;
+    setHistoryLoading(true);
+    (async () => {
+      const next = await fetchTrackerData(bpId, historyDays);
+      if (cancelled) return;
+      setFeedings(next.feedings);
+      setDiapers(next.diapers);
+      setSleeps(next.sleeps);
+      setPumpings(next.pumpings);
+      setBottleFeeds(next.bottleFeeds);
+      setHistoryLoading(false);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [babyProfile?.id, historyDays]);
 
   const activeFeeding = feedings.find(f => !f.endTime) || null;
   const activeSleep = sleeps.find(s => !s.endTime) || null;
@@ -423,6 +487,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       pumpings, activePumping, startPumping, stopPumping, deletePumping, addPastPumping, updatePumping,
       bottleFeeds, logBottleFeed, deleteBottleFeed, addPastBottleFeed, updateBottleFeed,
       caregiver, caregivers, babyProfileId, familyId, loading,
+      historyDays, setHistoryDays, historyLoading,
     }}>
       {children}
     </AppContext.Provider>
